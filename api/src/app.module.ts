@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { configs } from './config';
-import { SchedulingModule } from './scheduling/scheduling.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
 
 @Module({
@@ -29,7 +29,7 @@ import { ClientsModule } from './clients/clients.module';
     }),
     AuthModule,
     UsersModule,
-    SchedulingModule,
+    AppointmentsModule,
     ClientsModule,
   ],
   controllers: [AppController],

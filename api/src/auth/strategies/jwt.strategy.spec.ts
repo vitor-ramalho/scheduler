@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../users/entities/user.entity';
 import { UnauthorizedException } from '@nestjs/common';
+import { Appointment } from '../../appointments/entities/appointment.entity'; // Corrected import path
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
@@ -92,4 +93,4 @@ describe('JwtStrategy', () => {
       expect(result).toEqual(payload);
     });
   });
-}); 
+});

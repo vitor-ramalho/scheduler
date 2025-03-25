@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientsController } from './clients.controller';
 import { ClientsService } from './clients.service';
+import { Appointment } from '../appointments/entities/appointment.entity'; // Corrected import path
 
 describe('ClientsController', () => {
   let controller: ClientsController;

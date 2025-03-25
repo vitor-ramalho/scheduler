@@ -1,0 +1,81 @@
+{
+  "HomePage": {
+    "title": "Streamline Your Medical Practice",
+    "description": "Our appointment management system helps healthcare professionals deliver better patient care with less administrative burden.",
+    "features": {
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Intelligent calendar with daily and weekly views"
+      },
+      "patientRecords": {
+        "title": "Patient Records",
+        "description": "Comprehensive patient database at your fingertips"
+      },
+      "consultationTypes": {
+        "title": "Consultation Types",
+        "description": "Customize appointment types and durations"
+      },
+      "automatedReminders": {
+        "title": "Automated Reminders",
+        "description": "Reduce no-shows with automatic notifications"
+      }
+    },
+    "stats": {
+      "reductionNoShows": "Reduction in No-Shows",
+      "medicalProfessionals": "Medical Professionals",
+      "hoursSaved": "Hours Saved Weekly"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "description": "Choose the perfect plan for your practice size. No hidden fees."
+    },
+    "cta": {
+      "title": "Ready to Transform Your Practice?",
+      "description": "Join thousands of healthcare professionals who trust our platform to manage their patient appointments.",
+      "button": "Access Dashboard"
+    }
+  },
+  "Navbar": {
+    "brand": "MediSchedule",
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "support": "Support",
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "dashboard": "Dashboard"
+    }
+  },
+  "Hero": {
+    "title": "Streamline Patient Care with Our Scheduling System",
+    "description": "Simplify appointment management for your medical practice. Join healthcare professionals who've transformed their patient scheduling workflow.",
+    "cta": {
+      "dashboard": "Access Dashboard",
+      "pricing": "View Pricing"
+    },
+    "features": {
+      "smartScheduling": "Smart scheduling",
+      "patientManagement": "Patient management",
+      "automatedReminders": "Automated reminders",
+      "onlineBooking": "24/7 online booking"
+    }
+  },
+  "SignIn": {
+    "title": "Sign In to Your Account",
+    "email": "Email Address",
+    "password": "Password",
+    "signInButton": "Sign In",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign Up"
+  },
+  "SignUp": {
+    "title": "Create Your Account",
+    "organizationName": "Organization Name",
+    "name": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "signUpButton": "Sign Up",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Sign In"
+  }
+}

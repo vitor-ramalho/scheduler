@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { Appointment } from '../appointments/entities/appointment.entity'; // Corrected import path
 
 describe('ClientsService', () => {
   let service: ClientsService;

@@ -1,0 +1,81 @@
+{
+  "HomePage": {
+    "title": "Otimize Sua Agenda Médica",
+    "description": "Nosso sistema de gerenciamento de consultas ajuda os profissionais de saúde a oferecer um melhor atendimento ao paciente com menos carga administrativa.",
+    "features": {
+      "smartScheduling": {
+        "title": "Agendamento Inteligente",
+        "description": "Calendário inteligente com visualizações diárias e semanais"
+      },
+      "patientRecords": {
+        "title": "Registros de Pacientes",
+        "description": "Banco de dados abrangente de pacientes ao seu alcance"
+      },
+      "consultationTypes": {
+        "title": "Tipos de Consulta",
+        "description": "Personalize os tipos e durações das consultas"
+      },
+      "automatedReminders": {
+        "title": "Lembretes Automatizados",
+        "description": "Reduza ausências com notificações automáticas"
+      }
+    },
+    "stats": {
+      "reductionNoShows": "Redução de Faltas",
+      "medicalProfessionals": "Profissionais de Saúde",
+      "hoursSaved": "Horas Economizadas Semanalmente"
+    },
+    "pricing": {
+      "title": "Preços Simples e Transparentes",
+      "description": "Escolha o plano perfeito para o tamanho da sua agenda. Sem taxas ocultas."
+    },
+    "cta": {
+      "title": "Pronto para Transformar Sua Agenda?",
+      "description": "Junte-se a milhares de profissionais de saúde que confiam em nossa plataforma para gerenciar suas consultas de pacientes.",
+      "button": "Acessar Painel"
+    }
+  },
+  "Navbar": {
+    "brand": "MediSchedule",
+    "links": {
+      "features": "Funcionalidades",
+      "pricing": "Preços",
+      "support": "Suporte",
+      "signIn": "Entrar",
+      "signUp": "Cadastrar-se",
+      "dashboard": "Painel"
+    }
+  },
+  "Hero": {
+    "title": "Otimize o Atendimento ao Paciente com Nosso Sistema de Agendamento",
+    "description": "Simplifique o gerenciamento de consultas para sua agenda médica. Junte-se a profissionais de saúde que transformaram seu fluxo de agendamento de pacientes.",
+    "cta": {
+      "dashboard": "Acessar Painel",
+      "pricing": "Ver Preços"
+    },
+    "features": {
+      "smartScheduling": "Agendamento inteligente",
+      "patientManagement": "Gerenciamento de pacientes",
+      "automatedReminders": "Lembretes automatizados",
+      "onlineBooking": "Agendamento online 24/7"
+    }
+  },
+  "SignIn": {
+    "title": "Entrar na Sua Conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "signInButton": "Entrar",
+    "noAccount": "Não tem uma conta?",
+    "signUpLink": "Cadastre-se"
+  },
+  "SignUp": {
+    "title": "Crie Sua Conta",
+    "organizationName": "Nome da Empresa",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirme a Senha",
+    "signUpButton": "Cadastrar-se",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "signInLink": "Entrar"
+  }
+}

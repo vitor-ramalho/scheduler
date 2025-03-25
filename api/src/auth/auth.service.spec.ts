@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { Appointment } from '../appointments/entities/appointment.entity'; // Corrected import path
 
 // Mock the bcrypt module
 jest.mock('bcrypt', () => ({
@@ -285,4 +286,4 @@ describe('AuthService', () => {
       expect(result).toEqual({ success: true });
     });
   });
-}); 
+});

@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { Appointment } from '../../scheduling/entities/appointment.entity';
+import { Appointment } from '../../appointments/entities/appointment.entity';
 
 @Entity({ name: 'clients' })
 export class Client {
