@@ -23,9 +23,10 @@ export async function login(email: string, password: string) {
     // Update the state immediately
     useUserStore.getState().setUser(user, accessToken, refreshToken);
 
-    // Store tokens securely
-    document.cookie = `accessToken=${accessToken}; path=/; secure; httpOnly; SameSite=Strict`;
-    document.cookie = `refreshToken=${refreshToken}; path=/; secure; httpOnly; SameSite=Strict`;
+    // Store tokens securely in local storage
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('user', JSON.stringify(user));
 
     return user;
   } catch (error: any) {
