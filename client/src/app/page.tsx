@@ -20,14 +20,7 @@ import { useTranslations } from "next-intl";
 
 export default function Home() {
   const t = useTranslations("HomePage");
-  // const supabase = await createClient();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
 
-  // const { data: plans, error } = await supabase.functions.invoke(
-  //   "supabase-functions-get-plans",
-  // );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">

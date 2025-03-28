@@ -2,9 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Client } from '../../clients/entities/client.entity';
 
@@ -13,14 +13,14 @@ export class Appointment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  clientName: string;
-
-  @Column()
-  clientEmail: string;
-
-  @ManyToOne(() => Client, (client) => client.appointments)
+  @ManyToOne(() => Client, (client) => client.appointments, { eager: true })
   client: Client;
+
+  @Column({ type: 'timestamp' })
+  startDate: Date;
+
+  @Column({ type: 'timestamp' })
+  endDate: Date;
 
   @CreateDateColumn()
   createdAt: Date;

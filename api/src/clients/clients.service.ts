@@ -24,7 +24,21 @@ export class ClientsService {
     });
   }
 
-  async update(id: string, clientData: Partial<Client>, organizationId: string) {
+  async findByIdentifier(identifier: string, organizationId: string) {
+    const client = await this.clientRepository.findOne({
+      where: { identifier, organization: { id: organizationId } },
+    });
+    if (!client) {
+      throw new NotFoundException('Client not found');
+    }
+    return client;
+  }
+
+  async update(
+    id: string,
+    clientData: Partial<Client>,
+    organizationId: string,
+  ) {
     const client = await this.clientRepository.findOne({
       where: { id, organization: { id: organizationId } },
     });

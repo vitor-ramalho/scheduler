@@ -21,6 +21,12 @@ export class Client {
   @Column({ unique: true })
   email: string;
 
+  @Column({ unique: true })
+  phone: string;
+
+  @Column({ unique: true })
+  identifier: string;
+
   @ManyToOne(() => Organization, (organization) => organization.clients)
   organization: Organization;
 

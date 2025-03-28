@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { Appointment } from './entities/appointment.entity';
 import {
@@ -6,27 +6,33 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBody,
+  ApiCreatedResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { AppointmentDto } from './dto/appointment.dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('appointments')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @ApiOperation({ summary: 'Create a new appointment' })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Appointment created successfully',
     type: AppointmentDto,
   })
   @ApiBody({ type: AppointmentDto })
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   createAppointment(
-    @Body() appointmentData: Partial<AppointmentDto>,
+    @Body() appointmentData: AppointmentDto,
     @GetUser('organizationId') organizationId: string,
   ) {
+    console.log({ appointmentData });
     return this.appointmentsService.createAppointment(
       appointmentData,
       organizationId,

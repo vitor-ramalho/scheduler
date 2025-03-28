@@ -2,13 +2,17 @@
 
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import CreateAppointmentModal from "@/components/modals/CreateAppointmentModal";
+import { useTranslations } from "next-intl";
 
 const CalendarPage = () => {
+  const t = useTranslations("CalendarPage"); // Add translation hook
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState("day");
+  const [view, setView] = useState("month");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Sample events with more detailed timing
   const [events, setEvents] = useState([
+    // March events
     {
       id: 1,
       title: "Team Meeting",
@@ -30,6 +34,21 @@ const CalendarPage = () => {
       end: new Date(2024, 2, 26, 11, 15),
       color: "bg-purple-200",
     },
+    // April events
+    {
+      id: 4,
+      title: "Spring Conference",
+      start: new Date(2024, 3, 15, 9, 0),
+      end: new Date(2024, 3, 15, 17, 0),
+      color: "bg-red-200",
+    },
+    {
+      id: 5,
+      title: "Team Lunch",
+      start: new Date(2024, 3, 20, 12, 0),
+      end: new Date(2024, 3, 20, 13, 30),
+      color: "bg-yellow-200",
+    },
   ]);
 
   const getDaysInMonth = (year, month) => {
@@ -47,14 +66,33 @@ const CalendarPage = () => {
     const firstDay = getFirstDayOfMonth(year, month);
     const days = [];
 
-    // Add empty cells for days before the first day of the month
+    // Previous month's days to fill beginning of grid
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const prevMonthDays = getDaysInMonth(prevYear, prevMonth);
+
+    // Fill in days from previous month
     for (let i = 0; i < firstDay; i++) {
-      days.push(null);
+      const prevMonthDate = new Date(
+        prevYear,
+        prevMonth,
+        prevMonthDays - firstDay + i + 1
+      );
+      days.push(prevMonthDate);
     }
 
-    // Add days of the month
+    // Current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
+    }
+
+    // Next month's days to complete the grid
+    const remainingCells = 42 - days.length; // 6 weeks * 7 days
+    for (let i = 1; i <= remainingCells; i++) {
+      const nextMonth = month === 11 ? 0 : month + 1;
+      const nextYear = month === 11 ? year + 1 : year;
+      const nextMonthDate = new Date(nextYear, nextMonth, i);
+      days.push(nextMonthDate);
     }
 
     return days;
@@ -62,46 +100,65 @@ const CalendarPage = () => {
 
   const renderMonthView = () => {
     const days = generateMonthView();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
     return (
       <div className="grid grid-cols-7 gap-1 p-2">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="text-center font-bold text-gray-600 p-2">
-            {day}
+        {["sun", "mon", "tue", "wed", "thu", "fri", "sat"].map((dayKey) => ( // Use individual weekday keys
+          <div key={dayKey} className="text-center font-bold text-gray-600 p-2">
+            {t(`weekdays.${dayKey}`)} {/* Translate each weekday */}
           </div>
         ))}
-        {days.map((date, index) => (
-          <div
-            key={index}
-            className={`
-              border min-h-[120px] p-2 
-              ${date ? "hover:bg-gray-50" : "bg-gray-50"}
-              ${
-                date && date.toDateString() === new Date().toDateString()
-                  ? "border-blue-500 border-2"
-                  : "border-gray-200"
-              }
-            `}
-          >
-            {date && (
+        {days.map((date, index) => {
+          const eventsForDay = events.filter(
+            (event) =>
+              event.start.getFullYear() === date.getFullYear() &&
+              event.start.getMonth() === date.getMonth() &&
+              event.start.getDate() === date.getDate()
+          );
+
+          const isCurrentMonth =
+            date.getFullYear() === currentYear &&
+            date.getMonth() === currentMonth;
+
+          return (
+            <div
+              key={index}
+              className={`
+                border min-h-[120px] p-2 cursor-pointer
+                ${isCurrentMonth ? "bg-white" : "bg-gray-100"}
+                ${
+                  date.toDateString() === new Date().toDateString()
+                    ? "border-blue-500 border-2"
+                    : "border-gray-200"
+                }
+              `}
+              onClick={() => {
+                setCurrentDate(date);
+                setView("day");
+              }}
+            >
               <div className="flex flex-col">
-                <span className="text-sm text-right">{date.getDate()}</span>
-                {events
-                  .filter(
-                    (event) =>
-                      event.start.toDateString() === date.toDateString()
-                  )
-                  .map((event, idx) => (
-                    <div
-                      key={idx}
-                      className="text-xs bg-blue-100 text-blue-800 rounded mt-1 p-1 truncate"
-                    >
-                      {event.title}
-                    </div>
-                  ))}
+                <span
+                  className={`
+                    text-sm text-right 
+                    ${!isCurrentMonth ? "text-gray-400" : "text-black"}
+                  `}
+                >
+                  {date.getDate()}
+                </span>
+
+                {/* Event Indicator */}
+                {eventsForDay.length > 0 && (
+                  <div className="mt-2 flex justify-center">
+                    <div className="w-2 h-2 rounded-full bg-teal-600"></div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -220,11 +277,8 @@ const CalendarPage = () => {
         {dates.map((date, index) => (
           <div key={index} className="flex-1 border-r">
             <div className="text-center font-semibold mb-2">
-              {date.toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}
+              {t("weekdays." + date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase())},{" "}
+              {date.getDate()} {t("months." + date.toLocaleDateString("en-US", { month: "short" }).toLowerCase())}
             </div>
             {renderTimeline(date)}
           </div>
@@ -233,37 +287,51 @@ const CalendarPage = () => {
     );
   };
 
+  // Month navigation method
+  const navigate = (direction) => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev);
+      if (view === "day") {
+        newDate.setDate(prev.getDate() + direction); // Move by one day
+      } else if (view === "week") {
+        newDate.setDate(prev.getDate() + direction * 7); // Move by one week
+      } else {
+        newDate.setMonth(prev.getMonth() + direction); // Move by one month
+      }
+      return newDate;
+    });
+  };
+
+  // Add event modal (placeholder)
+  const openAddEventModal = () => {
+    // TODO: Implement add event functionality
+    alert("Add Event functionality to be implemented");
+  };
+
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() =>
-              setCurrentDate((prev) => {
-                const newDate = new Date(prev);
-                newDate.setDate(prev.getDate() - (view === "week" ? 7 : 1));
-                return newDate;
-              })
-            }
+            onClick={() => navigate(-1)}
+            className="hover:bg-gray-100 p-2 rounded"
+            title={t("navigation.previous")} // Add translation for button title
           >
             <ChevronLeft />
           </button>
           <h2 className="text-xl font-bold">
-            {currentDate.toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-              day: view === "day" ? "numeric" : undefined,
-            })}
+            {t("months." + currentDate.toLocaleDateString("en-US", { month: "long" }).toLowerCase())}{" "}
+            {currentDate.getFullYear()}
+            <span className="text-gray-500 text-lg ml-2">
+              ({t("weekdays." + currentDate.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase())},{" "}
+              {currentDate.getDate()})
+            </span>
           </h2>
           <button
-            onClick={() =>
-              setCurrentDate((prev) => {
-                const newDate = new Date(prev);
-                newDate.setDate(prev.getDate() + (view === "week" ? 7 : 1));
-                return newDate;
-              })
-            }
+            onClick={() => navigate(1)}
+            className="hover:bg-gray-100 p-2 rounded"
+            title={t("navigation.next")} // Add translation for button title
           >
             <ChevronRight />
           </button>
@@ -284,15 +352,16 @@ const CalendarPage = () => {
               `}
               onClick={() => setView(viewOption)}
             >
-              {viewOption}
+              {t(`views.${viewOption}`)} {/* Use translated view names */}
             </button>
           ))}
         </div>
 
         {/* Add Event Button */}
         <button
-          className="bg-teal-600 text-white p-2 rounded-full"
-          title="Add Event"
+          className="bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700"
+          title={t("addEvent")} // Add translation for button title
+          onClick={() => setIsModalOpen(true)} // Open modal
         >
           <Plus />
         </button>
@@ -304,6 +373,12 @@ const CalendarPage = () => {
         {view === "day" && renderTimeline(currentDate)}
         {view === "week" && renderWeekView()}
       </div>
+
+      {/* Create Appointment Modal */}
+      <CreateAppointmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)} // Close modal
+      />
     </div>
   );
 };

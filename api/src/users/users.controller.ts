@@ -35,6 +35,7 @@ export class UsersController {
   @Roles('admin')
   @Get()
   findAll(@GetUser('organizationId') organizationId: string) {
+    console.log({ organizationId });
     return this.usersService.findAll(organizationId);
   }
 

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Client } from '../clients/entities/client.entity';
+import { AppointmentDto } from './dto/appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -13,13 +14,16 @@ export class AppointmentsService {
     private readonly clientRepository: Repository<Client>, // Inject Client repository
   ) {}
 
-  async createAppointment(appointmentData: Partial<Appointment>, organizationId: string) {
-    if (!appointmentData.client || !appointmentData.client.id) {
-      throw new NotFoundException('Client is required for creating an appointment');
-    }
-
+  async createAppointment(
+    appointmentData: AppointmentDto,
+    organizationId: string,
+  ) {
+    console.log({ appointmentData });
     const client = await this.clientRepository.findOne({
-      where: { id: appointmentData.client.id, organization: { id: organizationId } },
+      where: {
+        id: appointmentData.clientId,
+        organization: { id: organizationId },
+      },
     });
 
     if (!client) {
@@ -34,8 +38,14 @@ export class AppointmentsService {
   }
 
   async findAppointments(organizationId: string) {
-    return this.appointmentRepository.find({
+    const appointments = await this.appointmentRepository.find({
       where: { client: { organization: { id: organizationId } } },
     });
+
+    return appointments.map((appointment) => ({
+      ...appointment,
+      clientName: appointment.client.name,
+      clientEmail: appointment.client.email,
+    }));
   }
 }

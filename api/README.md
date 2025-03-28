@@ -12,6 +12,8 @@ This is a multi-tenant SaaS application that allows organizations to manage thei
 - Scheduling management (upcoming)
 - Appointment booking (upcoming)
 - Notifications (upcoming)
+- **Appointments**: Includes fields for `startDate` and `endDate` to manage scheduling.
+- **Clients**: Includes fields for `id`, `name`, `email`, `organizationId`, `createdAt`, and `updatedAt`.
 
 ## Technology Stack
 
