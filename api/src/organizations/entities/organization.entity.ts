@@ -1,6 +1,14 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
+import { Professional } from 'src/professional/entities/professional.entity';
 
 @Entity({ name: 'organizations' })
 export class Organization {
@@ -24,6 +32,9 @@ export class Organization {
 
   @OneToMany(() => Client, (client) => client.organization)
   clients: Client[];
+
+  @OneToMany(() => Professional, (professional) => professional.organization)
+  professionals: Professional[];
 
   @CreateDateColumn()
   createdAt: Date;

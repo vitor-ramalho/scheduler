@@ -1,6 +1,13 @@
-import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
-import { Appointment } from './entities/appointment.entity';
 import {
   ApiTags,
   ApiOperation,

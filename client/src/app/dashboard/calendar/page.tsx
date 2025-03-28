@@ -1,55 +1,45 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import CreateAppointmentModal from "@/components/modals/CreateAppointmentModal";
 import { useTranslations } from "next-intl";
+import { useAppointmentStore } from "@/store/appointmentStore";
 
 const CalendarPage = () => {
-  const t = useTranslations("CalendarPage"); // Add translation hook
+  const t = useTranslations("CalendarPage");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("month");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [events, setEvents] = useState([
-    // March events
-    {
-      id: 1,
-      title: "Team Meeting",
-      start: new Date(2024, 2, 26, 14, 0),
-      end: new Date(2024, 2, 26, 15, 30),
-      color: "bg-blue-200",
-    },
-    {
-      id: 2,
-      title: "Client Call",
-      start: new Date(2024, 2, 26, 16, 15),
-      end: new Date(2024, 2, 26, 16, 45),
-      color: "bg-green-200",
-    },
-    {
-      id: 3,
-      title: "Project Review",
-      start: new Date(2024, 2, 26, 10, 0),
-      end: new Date(2024, 2, 26, 11, 15),
-      color: "bg-purple-200",
-    },
-    // April events
-    {
-      id: 4,
-      title: "Spring Conference",
-      start: new Date(2024, 3, 15, 9, 0),
-      end: new Date(2024, 3, 15, 17, 0),
-      color: "bg-red-200",
-    },
-    {
-      id: 5,
-      title: "Team Lunch",
-      start: new Date(2024, 3, 20, 12, 0),
-      end: new Date(2024, 3, 20, 13, 30),
-      color: "bg-yellow-200",
-    },
-  ]);
+  const { appointments, loading, error, fetchAppointments } =
+    useAppointmentStore();
+
+  console.log("Appointments:", appointments);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  const mapAppointmentsToEvents = () => {
+    return appointments.map((appointment) => {
+      const start = new Date(appointment.startDate);
+      const end = new Date(appointment.endDate);
+
+      // Ensure the start and end dates are properly set
+      start.setSeconds(0, 0); // Remove any sub-second precision
+      end.setSeconds(0, 0);
+
+      return {
+        id: appointment.id,
+        start,
+        end,
+        color: "bg-blue-200",
+        clientName: appointment.client?.name || "Unknown Client", // Include client name
+      };
+    });
+  };
+  const events = mapAppointmentsToEvents();
 
   const getDaysInMonth = (year, month) => {
     return new Date(year, month + 1, 0).getDate();
@@ -105,9 +95,9 @@ const CalendarPage = () => {
 
     return (
       <div className="grid grid-cols-7 gap-1 p-2">
-        {["sun", "mon", "tue", "wed", "thu", "fri", "sat"].map((dayKey) => ( // Use individual weekday keys
+        {["sun", "mon", "tue", "wed", "thu", "fri", "sat"].map((dayKey) => (
           <div key={dayKey} className="text-center font-bold text-gray-600 p-2">
-            {t(`weekdays.${dayKey}`)} {/* Translate each weekday */}
+            {t(`weekdays.${dayKey}`)}
           </div>
         ))}
         {days.map((date, index) => {
@@ -166,14 +156,23 @@ const CalendarPage = () => {
   // Generate time slots (15-minute intervals) between 7 AM and 8 PM
   const generateTimeSlots = () => {
     const slots = [];
+    const selectedDate = new Date(currentDate); // Use the selected day
+    selectedDate.setHours(0, 0, 0, 0); // Reset time to midnight
+
     for (let hour = 7; hour < 20; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
+        const slotTime = new Date(selectedDate);
+        slotTime.setHours(hour, minute);
+
         slots.push({
-          time: new Date(2024, 2, 26, hour, minute),
+          time: slotTime,
           events: events.filter((event) => {
-            const slotStart = new Date(2024, 2, 26, hour, minute);
-            const slotEnd = new Date(2024, 2, 26, hour, minute + 15);
-            return event.start < slotEnd && event.end > slotStart;
+            const eventStart = new Date(event.start); // Convert to Date object
+            const eventEnd = new Date(event.end); // Convert to Date object
+            const slotStart = new Date(slotTime);
+            const slotEnd = new Date(slotTime);
+            slotEnd.setMinutes(slotEnd.getMinutes() + 15);
+            return eventStart < slotEnd && eventEnd > slotStart;
           }),
         });
       }
@@ -187,6 +186,7 @@ const CalendarPage = () => {
     return (
       <div className="relative w-full">
         {timeSlots.map((slot, index) => {
+          console.log("Rendering time slot:", slot);
           // Format time display
           const timeString = slot.time.toLocaleTimeString("en-US", {
             hour: "numeric",
@@ -209,7 +209,7 @@ const CalendarPage = () => {
               {/* Event Slot */}
               <div className="flex-grow relative">
                 {slot.events.map((event) => {
-                  // Calculate positioning and duration
+                  console.log("Rendering event:", event);
                   const startMinuteOfDay =
                     event.start.getHours() * 60 + event.start.getMinutes();
                   const slotMinuteOfDay =
@@ -234,7 +234,7 @@ const CalendarPage = () => {
                           minHeight: "30px",
                         }}
                       >
-                        <div className="font-semibold">{event.title}</div>
+                        <div className="font-semibold">{event.clientName}</div> {/* Render client name */}
                         <div className="text-xs">
                           {event.start.toLocaleTimeString("en-US", {
                             hour: "numeric",
@@ -277,8 +277,19 @@ const CalendarPage = () => {
         {dates.map((date, index) => (
           <div key={index} className="flex-1 border-r">
             <div className="text-center font-semibold mb-2">
-              {t("weekdays." + date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase())},{" "}
-              {date.getDate()} {t("months." + date.toLocaleDateString("en-US", { month: "short" }).toLowerCase())}
+              {t(
+                "weekdays." +
+                  date
+                    .toLocaleDateString("en-US", { weekday: "short" })
+                    .toLowerCase()
+              )}
+              , {date.getDate()}{" "}
+              {t(
+                "months." +
+                  date
+                    .toLocaleDateString("en-US", { month: "short" })
+                    .toLowerCase()
+              )}
             </div>
             {renderTimeline(date)}
           </div>
@@ -302,10 +313,26 @@ const CalendarPage = () => {
     });
   };
 
-  // Add event modal (placeholder)
-  const openAddEventModal = () => {
-    // TODO: Implement add event functionality
-    alert("Add Event functionality to be implemented");
+  const renderContent = () => {
+    if (loading) {
+      return <div className="text-center p-4">{t("loading")}</div>;
+    }
+
+    if (error) {
+      return (
+        <div className="text-center p-4 text-red-500">
+          {t("error")}: {error}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {view === "month" && renderMonthView()}
+        {view === "day" && renderTimeline(currentDate)}
+        {view === "week" && renderWeekView()}
+      </>
+    );
   };
 
   return (
@@ -316,22 +343,33 @@ const CalendarPage = () => {
           <button
             onClick={() => navigate(-1)}
             className="hover:bg-gray-100 p-2 rounded"
-            title={t("navigation.previous")} // Add translation for button title
+            title={t("navigation.previous")}
           >
             <ChevronLeft />
           </button>
           <h2 className="text-xl font-bold">
-            {t("months." + currentDate.toLocaleDateString("en-US", { month: "long" }).toLowerCase())}{" "}
+            {t(
+              "months." +
+                currentDate
+                  .toLocaleDateString("en-US", { month: "long" })
+                  .toLowerCase()
+            )}{" "}
             {currentDate.getFullYear()}
             <span className="text-gray-500 text-lg ml-2">
-              ({t("weekdays." + currentDate.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase())},{" "}
-              {currentDate.getDate()})
+              (
+              {t(
+                "weekdays." +
+                  currentDate
+                    .toLocaleDateString("en-US", { weekday: "short" })
+                    .toLowerCase()
+              )}
+              , {currentDate.getDate()})
             </span>
           </h2>
           <button
             onClick={() => navigate(1)}
             className="hover:bg-gray-100 p-2 rounded"
-            title={t("navigation.next")} // Add translation for button title
+            title={t("navigation.next")}
           >
             <ChevronRight />
           </button>
@@ -352,7 +390,7 @@ const CalendarPage = () => {
               `}
               onClick={() => setView(viewOption)}
             >
-              {t(`views.${viewOption}`)} {/* Use translated view names */}
+              {t(`views.${viewOption}`)}
             </button>
           ))}
         </div>
@@ -360,24 +398,20 @@ const CalendarPage = () => {
         {/* Add Event Button */}
         <button
           className="bg-teal-600 text-white p-2 rounded-full hover:bg-teal-700"
-          title={t("addEvent")} // Add translation for button title
-          onClick={() => setIsModalOpen(true)} // Open modal
+          title={t("addEvent")}
+          onClick={() => setIsModalOpen(true)}
         >
           <Plus />
         </button>
       </div>
 
       {/* Calendar View */}
-      <div className="flex-grow overflow-auto w-full">
-        {view === "month" && renderMonthView()}
-        {view === "day" && renderTimeline(currentDate)}
-        {view === "week" && renderWeekView()}
-      </div>
+      <div className="flex-grow overflow-auto w-full">{renderContent()}</div>
 
       {/* Create Appointment Modal */}
       <CreateAppointmentModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)} // Close modal
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );

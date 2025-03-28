@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Client } from './entities/client.entity';
+import { ClientDto } from './dto/client.dto';
 
 @Injectable()
 export class ClientsService {
@@ -10,7 +11,7 @@ export class ClientsService {
     private readonly clientRepository: Repository<Client>,
   ) {}
 
-  create(clientData: Partial<Client>, organizationId: string) {
+  create(clientData: ClientDto, organizationId: string) {
     const client = this.clientRepository.create({
       ...clientData,
       organization: { id: organizationId },
@@ -25,8 +26,10 @@ export class ClientsService {
   }
 
   async findByIdentifier(identifier: string, organizationId: string) {
-    const client = await this.clientRepository.findOne({
-      where: { identifier, organization: { id: organizationId } },
+    console.log('client',{ identifier, organizationId });
+    const client = await this.clientRepository.findOneBy({
+      identifier,
+      organization: { id: organizationId },
     });
     if (!client) {
       throw new NotFoundException('Client not found');

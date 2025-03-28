@@ -4,11 +4,13 @@ import { Appointment } from './entities/appointment.entity';
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
 import { ClientsModule } from '../clients/clients.module';
+import { ProfessionalModule } from 'src/professional/professional.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Appointment]),
-    ClientsModule, // Ensure ClientsModule is imported
+    ProfessionalModule,
+    ClientsModule,
   ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],

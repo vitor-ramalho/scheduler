@@ -79,6 +79,7 @@
     "signInLink": "Entrar"
   },
   "CalendarPage": {
+    "loading": "Carregando...",
     "weekdays": {
       "sun": "Dom",
       "mon": "Seg",
@@ -124,5 +125,54 @@
       "month": "Mês"
     },
     "addEvent": "Adicionar Evento"
+  },
+  "CreateAppointmentModal": {
+    "titles": {
+      "step1": "Agendar Consulta",
+      "step2": "Agendar Consulta"
+    },
+    "placeholders": {
+      "identifier": "Identificador do Cliente (CPF)",
+      "name": "Nome do Cliente",
+      "email": "E-mail do Cliente",
+      "phone": "Telefone (ex.: (31) 9 2002-5047)",
+      "date": "Data (AAAA-MM-DD)",
+      "time": "Hora (HH:MM)",
+      "consultationType": "Tipo de Consulta",
+      "notes": "Notas (Opcional)"
+    },
+    "errors": {
+      "identifier": "O identificador deve ter 11 dígitos.",
+      "name": "O nome é obrigatório.",
+      "email": "Um e-mail válido é obrigatório.",
+      "phone": "O telefone deve ter 11 dígitos.",
+      "date": "A data é obrigatória.",
+      "time": "A hora é obrigatória.",
+      "consultationType": "O tipo de consulta é obrigatório."
+    },
+    "toasts": {
+      "success": {
+        "title": "Sucesso",
+        "description": "Cliente encontrado e dados preenchidos."
+      },
+      "info": {
+        "title": "Informação",
+        "description": "Nenhum cliente encontrado com este identificador."
+      },
+      "appointmentSuccess": {
+        "title": "Sucesso",
+        "description": "Consulta criada com sucesso."
+      },
+      "error": {
+        "title": "Erro",
+        "description": "Falha ao criar a consulta."
+      }
+    },
+    "buttons": {
+      "next": "Próximo",
+      "back": "Voltar",
+      "createAppointment": "Criar Consulta",
+      "loading": "Carregando..."
+    }
   }
 }

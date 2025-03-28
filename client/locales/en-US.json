@@ -124,5 +124,54 @@
       "month": "Month"
     },
     "addEvent": "Add Event"
+  },
+  "CreateAppointmentModal": {
+    "titles": {
+      "step1": "Create or Select Client",
+      "step2": "Create Appointment"
+    },
+    "placeholders": {
+      "identifier": "Client Identifier (CPF)",
+      "name": "Client Name",
+      "email": "Client Email",
+      "phone": "Phone (e.g., (31) 9 2002-5047)",
+      "date": "Date (YYYY-MM-DD)",
+      "time": "Time (HH:MM)",
+      "consultationType": "Consultation Type",
+      "notes": "Notes (Optional)"
+    },
+    "errors": {
+      "identifier": "Identifier must be 11 digits.",
+      "name": "Name is required.",
+      "email": "Valid email is required.",
+      "phone": "Phone must be 11 digits.",
+      "date": "Date is required.",
+      "time": "Time is required.",
+      "consultationType": "Consultation type is required."
+    },
+    "toasts": {
+      "success": {
+        "title": "Success",
+        "description": "Client found and data populated."
+      },
+      "info": {
+        "title": "Info",
+        "description": "No client found with this identifier."
+      },
+      "appointmentSuccess": {
+        "title": "Success",
+        "description": "Appointment created successfully."
+      },
+      "error": {
+        "title": "Error",
+        "description": "Failed to create appointment."
+      }
+    },
+    "buttons": {
+      "next": "Next",
+      "back": "Back",
+      "createAppointment": "Create Appointment",
+      "loading": "Loading..."
+    }
   }
 }

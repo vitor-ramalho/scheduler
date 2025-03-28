@@ -63,7 +63,7 @@ export class ClientsController {
     type: ClientDto,
   })
   @ApiResponse({ status: 404, description: 'Client not found' })
-  @Get('')
+  @Get('search')
   findByIdentifier(
     @Query('identifier') identifier: string,
     @GetUser('organizationId') organizationId: string,
