@@ -68,6 +68,13 @@ export default function Sidebar() {
               <Bell className="h-5 w-5" />
               Reminders
             </Link>
+            <Link
+              href="/dashboard/professionals"
+              className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
+            >
+              <Users className="h-5 w-5" />
+              Professionals
+            </Link>
           </nav>
         </div>
       </div>

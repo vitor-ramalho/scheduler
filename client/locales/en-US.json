@@ -138,7 +138,9 @@
       "date": "Date (YYYY-MM-DD)",
       "time": "Time (HH:MM)",
       "consultationType": "Consultation Type",
-      "notes": "Notes (Optional)"
+      "notes": "Notes (Optional)",
+      "professional": "Select Professional",
+      "selectProfessional": "Choose a professional"
     },
     "errors": {
       "identifier": "Identifier must be 11 digits.",
@@ -147,7 +149,8 @@
       "phone": "Phone must be 11 digits.",
       "date": "Date is required.",
       "time": "Time is required.",
-      "consultationType": "Consultation type is required."
+      "consultationType": "Consultation type is required.",
+      "professional": "Professional is required."
     },
     "toasts": {
       "success": {
@@ -172,6 +175,53 @@
       "back": "Back",
       "createAppointment": "Create Appointment",
       "loading": "Loading..."
+    }
+  },
+  "ProfessionalsPage": {
+    "title": "Manage Professionals",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "actions": "Actions",
+      "noEmail": "No Email",
+      "noPhone": "No Phone"
+    },
+    "buttons": {
+      "addProfessional": "Add Professional",
+      "edit": "Edit",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "save": "Save",
+      "loading": "Saving..."
+    },
+    "modal": {
+      "createTitle": "Create Professional",
+      "editTitle": "Edit Professional"
+    },
+    "placeholders": {
+      "name": "Enter name",
+      "email": "Enter email",
+      "phone": "Enter phone"
+    },
+    "errors": {
+      "name": "Name is required.",
+      "email": "Invalid email address.",
+      "phone": "Invalid phone number."
+    },
+    "toasts": {
+      "success": {
+        "title": "Success",
+        "create": "Professional created successfully.",
+        "update": "Professional updated successfully.",
+        "remove": "Professional removed successfully."
+      },
+      "error": {
+        "title": "Error",
+        "fetch": "Failed to fetch professionals.",
+        "save": "Failed to save professional.",
+        "remove": "Failed to remove professional."
+      }
     }
   }
 }

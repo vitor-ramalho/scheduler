@@ -17,6 +17,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -37,10 +38,17 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        useUserStore.getState().clearUser();
+        console.error('Failed to refresh token:', refreshError.response?.data?.message || refreshError.message);
+        useUserStore.getState().clearUser(); // Clear user state on refresh failure
         return Promise.reject(refreshError);
       }
     }
+
+    // Clear user state if 401 occurs and no refresh token is available
+    if (error.response?.status === 401) {
+      useUserStore.getState().clearUser();
+    }
+
     return Promise.reject(error);
   }
 );

@@ -1,16 +1,8 @@
-import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+"use clientƒ";
+
+import React from "react";
 
 export default function PatientsPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
-  if (!isAuthenticated) {
-    router.push('/sign-in');
-    return null;
-  }
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Patient Management</h1>

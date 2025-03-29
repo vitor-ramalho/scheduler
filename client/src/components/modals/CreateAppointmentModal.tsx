@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,8 @@ import { bookAppointment } from "@/services/appointmentService";
 import { toast } from "@/components/ui/use-toast";
 import { getClientByIdentifier, addClient } from "@/services/clientService";
 import { useTranslations } from "next-intl";
+import { useProfessionalStore } from "@/store/professionalStore";
+import { formatPhoneInput } from "@/utils/utils";
 
 interface ClientData {
   id: string;
@@ -26,19 +28,13 @@ interface ClientData {
 
 interface AppointmentData {
   clientId: string;
+  professionalId: string; // Add professionalId
   startDate: string;
   endDate: string;
   duration: number;
 }
 
-const formatPhoneInput = (phone: string) => {
-  const cleaned = phone.replace(/\D/g, "");
-  const match = cleaned.match(/^(\d{2})(\d{1})(\d{4})(\d{4})$/);
-  if (match) {
-    return `(${match[1]}) ${match[2]} ${match[3]}-${match[4]}`;
-  }
-  return phone;
-};
+
 
 const formatIdentifierInput = (identifier: string) => {
   if (!identifier) return "";
@@ -58,6 +54,7 @@ export default function CreateAppointmentModal({
   onClose: () => void;
 }) {
   const t = useTranslations("CreateAppointmentModal");
+  const { professionals, fetchProfessionals } = useProfessionalStore();
   const [step, setStep] = useState(1);
   const [clientData, setClientData] = useState<ClientData>({
     id: "",
@@ -68,6 +65,7 @@ export default function CreateAppointmentModal({
   });
   const [appointmentData, setAppointmentData] = useState<AppointmentData>({
     clientId: "",
+    professionalId: "", // Initialize professionalId
     startDate: "",
     endDate: "",
     duration: 15, // Default duration
@@ -75,6 +73,10 @@ export default function CreateAppointmentModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const { setAppointment } = useAppointmentStore();
+
+  useEffect(() => {
+    fetchProfessionals();
+  }, [fetchProfessionals]);
 
   const validateClientData = () => {
     const newErrors: Record<string, string> = {};
@@ -98,6 +100,9 @@ export default function CreateAppointmentModal({
     const newErrors: Record<string, string> = {};
     if (!appointmentData.startDate) {
       newErrors.startDate = t("errors.date");
+    }
+    if (!appointmentData.professionalId) {
+      newErrors.professionalId = t("errors.professional");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -202,6 +207,7 @@ export default function CreateAppointmentModal({
     try {
       const response = await bookAppointment({
         clientId: appointmentData.clientId,
+        professionalId: appointmentData.professionalId, // Include professionalId
         startDate: appointmentData.startDate,
         endDate: endDate.toISOString(),
       });
@@ -287,6 +293,33 @@ export default function CreateAppointmentModal({
         )}
         {step === 2 && (
           <div className="space-y-4">
+            {/* Professional Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                {t("placeholders.professional")}
+              </label>
+              <select
+                value={appointmentData.professionalId}
+                onChange={(e) =>
+                  setAppointmentData({
+                    ...appointmentData,
+                    professionalId: e.target.value,
+                  })
+                }
+                className="w-full p-2 border rounded"
+                disabled={loading}
+              >
+                <option value="">{t("placeholders.selectProfessional")}</option>
+                {professionals.map((professional) => (
+                  <option key={professional.id} value={professional.id}>
+                    {professional.name}
+                  </option>
+                ))}
+              </select>
+              {errors.professionalId && (
+                <p className="text-red-500 text-sm">{errors.professionalId}</p>
+              )}
+            </div>
             <div>
               <Input
                 placeholder={t("placeholders.date")}

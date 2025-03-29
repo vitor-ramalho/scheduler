@@ -139,7 +139,9 @@
       "date": "Data (AAAA-MM-DD)",
       "time": "Hora (HH:MM)",
       "consultationType": "Tipo de Consulta",
-      "notes": "Notas (Opcional)"
+      "notes": "Notas (Opcional)",
+      "professional": "Selecione o Profissional",
+      "selectProfessional": "Escolha um profissional"
     },
     "errors": {
       "identifier": "O identificador deve ter 11 dígitos.",
@@ -148,7 +150,8 @@
       "phone": "O telefone deve ter 11 dígitos.",
       "date": "A data é obrigatória.",
       "time": "A hora é obrigatória.",
-      "consultationType": "O tipo de consulta é obrigatório."
+      "consultationType": "O tipo de consulta é obrigatório.",
+      "professional": "O profissional é obrigatório."
     },
     "toasts": {
       "success": {
@@ -173,6 +176,53 @@
       "back": "Voltar",
       "createAppointment": "Criar Consulta",
       "loading": "Carregando..."
+    }
+  },
+  "ProfessionalsPage": {
+    "title": "Gerenciar Profissionais",
+    "table": {
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "actions": "Ações",
+      "noEmail": "Sem E-mail",
+      "noPhone": "Sem Telefone"
+    },
+    "buttons": {
+      "addProfessional": "Adicionar Profissional",
+      "edit": "Editar",
+      "remove": "Remover",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "loading": "Salvando..."
+    },
+    "modal": {
+      "createTitle": "Criar Profissional",
+      "editTitle": "Editar Profissional"
+    },
+    "placeholders": {
+      "name": "Digite o nome",
+      "email": "Digite o e-mail",
+      "phone": "Digite o telefone"
+    },
+    "errors": {
+      "name": "O nome é obrigatório.",
+      "email": "Endereço de e-mail inválido.",
+      "phone": "Número de telefone inválido."
+    },
+    "toasts": {
+      "success": {
+        "title": "Sucesso",
+        "create": "Profissional criado com sucesso.",
+        "update": "Profissional atualizado com sucesso.",
+        "remove": "Profissional removido com sucesso."
+      },
+      "error": {
+        "title": "Erro",
+        "fetch": "Falha ao buscar profissionais.",
+        "save": "Falha ao salvar profissional.",
+        "remove": "Falha ao remover profissional."
+      }
     }
   }
 }
