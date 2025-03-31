@@ -48,4 +48,26 @@ export class AppointmentsService {
       clientEmail: appointment.client.email,
     }));
   }
+
+  async findAppointmentsByProfessional(
+    organizationId: string,
+    professionalId: string,
+  ) {
+    const appointments = await this.appointmentRepository.find({
+      where: {
+        organization: {
+          id: organizationId,
+        },
+        professional: {
+          id: professionalId,
+        },
+      },
+    });
+
+    if (!appointments) {
+      throw new NotFoundException('Appointments not found');
+    }
+
+    return appointments;
+  }
 }

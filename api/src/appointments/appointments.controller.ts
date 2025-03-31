@@ -6,6 +6,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import {
@@ -55,5 +56,22 @@ export class AppointmentsController {
   @Get()
   findAppointments(@GetUser('organizationId') organizationId: string) {
     return this.appointmentsService.findAppointments(organizationId);
+  }
+
+  @ApiOperation({ summary: 'Get all appointments' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of appointments',
+    type: [AppointmentDto],
+  })
+  @Get('/:professionalId')
+  findAppointmentsByProfessional(
+    @GetUser('organizationId') organizationId: string,
+    @Param('professionalId') professionalId: string,
+  ) {
+    return this.appointmentsService.findAppointmentsByProfessional(
+      organizationId,
+      professionalId,
+    );
   }
 }

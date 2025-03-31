@@ -9,6 +9,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
 import { Professional } from 'src/professional/entities/professional.entity';
+import { Appointment } from 'src/appointments/entities/appointment.entity';
 
 @Entity({ name: 'organizations' })
 export class Organization {
@@ -35,6 +36,9 @@ export class Organization {
 
   @OneToMany(() => Professional, (professional) => professional.organization)
   professionals: Professional[];
+
+  @OneToMany(() => Appointment, (appointment) => appointment.organization)
+  appointments: Appointment[];
 
   @CreateDateColumn()
   createdAt: Date;
