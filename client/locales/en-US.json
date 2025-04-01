@@ -123,7 +123,9 @@
       "week": "Week",
       "month": "Month"
     },
-    "addEvent": "Add Event"
+    "addEvent": "Add Event",
+    "error": "Calendar error",
+    "selectProfessionalTitle": "Professional"
   },
   "CreateAppointmentModal": {
     "titles": {
@@ -140,7 +142,8 @@
       "consultationType": "Consultation Type",
       "notes": "Notes (Optional)",
       "professional": "Select Professional",
-      "selectProfessional": "Choose a professional"
+      "selectProfessional": "Choose a professional",
+      "duration": "Duracao"
     },
     "errors": {
       "identifier": "Identifier must be 11 digits.",

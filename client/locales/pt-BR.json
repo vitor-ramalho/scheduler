@@ -124,7 +124,9 @@
       "week": "Semana",
       "month": "Mês"
     },
-    "addEvent": "Adicionar Evento"
+    "addEvent": "Adicionar Evento",
+    "error": "Erro no calendario",
+    "selectProfessionalTitle": "Profissional"
   },
   "CreateAppointmentModal": {
     "titles": {
@@ -141,7 +143,8 @@
       "consultationType": "Tipo de Consulta",
       "notes": "Notas (Opcional)",
       "professional": "Selecione o Profissional",
-      "selectProfessional": "Escolha um profissional"
+      "selectProfessional": "Escolha um profissional",
+      "duration": "Duracao"
     },
     "errors": {
       "identifier": "O identificador deve ter 11 dígitos.",

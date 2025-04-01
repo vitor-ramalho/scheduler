@@ -6,6 +6,6 @@ export async function fetchAvailableTimeSlots(date: string, consultationType: st
 }
 
 export async function bookAppointment(appointmentData: any) {
-  const response = await api.post('/appointments', appointmentData);
+  const response = await api.post(`/appointments/${appointmentData.professionalId}`, appointmentData);
   return response.data;
 }

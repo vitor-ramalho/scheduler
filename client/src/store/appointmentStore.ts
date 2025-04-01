@@ -12,7 +12,7 @@ interface AppointmentState {
   appointments: Appointment[];
   loading: boolean;
   error: string | null;
-  fetchAppointments: () => Promise<void>;
+  fetchAppointments: (professionalId: string) => Promise<void>;
   setAppointment: (appointment: Appointment) => void;
   clearAppointment: () => void;
 }
@@ -21,10 +21,10 @@ export const useAppointmentStore = create<AppointmentState>((set) => ({
   appointments: [],
   loading: false,
   error: null,
-  fetchAppointments: async () => {
+  fetchAppointments: async (professionalId) => {
     set({ loading: true, error: null });
     try {
-      const response = await api.get("/appointments");
+      const response = await api.get(`/appointments/${professionalId}`);
       const data: Appointment[] = response.data;
       set({ appointments: data, loading: false });
     } catch (error: any) {

@@ -21,7 +21,6 @@ interface Professional {
   name: string;
   email?: string;
   phone?: string;
-  active: boolean;
 }
 
 export default function ProfessionalsPage() {
@@ -35,7 +34,6 @@ export default function ProfessionalsPage() {
     name: "",
     email: "",
     phone: "",
-    active: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -131,7 +129,6 @@ export default function ProfessionalsPage() {
               name: "",
               email: "",
               phone: "",
-              active: true,
             });
             setIsModalOpen(true);
           }}
@@ -236,25 +233,6 @@ export default function ProfessionalsPage() {
               {errors.phone && (
                 <p className="text-red-500 text-sm">{errors.phone}</p>
               )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t("placeholders.active")}
-              </label>
-              <select
-                value={currentProfessional.active ? "true" : "false"}
-                onChange={(e) =>
-                  handleInputChange(
-                    "active",
-                    e.target.value === "true" ? "true" : "false"
-                  )
-                }
-                className="w-full p-2 border rounded"
-                disabled={loading}
-              >
-                <option value="true">{t("placeholders.activeYes")}</option>
-                <option value="false">{t("placeholders.activeNo")}</option>
-              </select>
             </div>
           </div>
           <DialogFooter>

@@ -1,25 +1,58 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ChevronDown } from "lucide-react";
 import CreateAppointmentModal from "@/components/modals/CreateAppointmentModal";
 import { useTranslations } from "next-intl";
 import { useAppointmentStore } from "@/store/appointmentStore";
+import { useProfessionalStore } from "@/store/professionalStore";
 
 const CalendarPage = () => {
   const t = useTranslations("CalendarPage");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("month");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProfessional, setSelectedProfessional] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { appointments, loading, error, fetchAppointments } =
     useAppointmentStore();
 
-  console.log("Appointments:", appointments);
+  const { professionals, fetchProfessionals } = useProfessionalStore();
+
+  console.log("professionals:", professionals);
 
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    const fetchInitialData = async () => {
+      await fetchProfessionals();
+    };
+    fetchInitialData();
+  }, [fetchProfessionals]);
+
+  useEffect(() => {
+    if (professionals.length > 0 && !selectedProfessional) {
+      setSelectedProfessional(professionals[0].id);
+    }
+  }, [professionals, selectedProfessional]);
+
+  useEffect(() => {
+    if (selectedProfessional) {
+      fetchAppointments(selectedProfessional);
+    }
+  }, [selectedProfessional, fetchAppointments]);
+
+  const handleProfessionalChange = (event) => {
+    setSelectedProfessional(event.target.value);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prev) => !prev);
+  };
+
+  const selectProfessional = (professionalId) => {
+    setSelectedProfessional(professionalId);
+    setIsDropdownOpen(false);
+  };
 
   const mapAppointmentsToEvents = () => {
     return appointments.map((appointment) => {
@@ -234,7 +267,8 @@ const CalendarPage = () => {
                           minHeight: "30px",
                         }}
                       >
-                        <div className="font-semibold">{event.clientName}</div> {/* Render client name */}
+                        <div className="font-semibold">{event.clientName}</div>{" "}
+                        {/* Render client name */}
                         <div className="text-xs">
                           {event.start.toLocaleTimeString("en-US", {
                             hour: "numeric",
@@ -403,6 +437,38 @@ const CalendarPage = () => {
         >
           <Plus />
         </button>
+      </div>
+
+      {/* Professional Selector Dropdown */}
+      <div className="relative p-4 border-b bg-gray-50">
+        <h3 className="text-sm font-medium text-gray-700 mb-2">
+          {t("selectProfessionalTitle", { defaultMessage: "Select Professional" })}
+        </h3>
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-left border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
+        >
+          <span>
+            {selectedProfessional
+              ? professionals.find((p) => p.id === selectedProfessional)?.name ||
+                t("placeholders.selectProfessional")
+              : t("placeholders.selectProfessional")}
+          </span>
+          <ChevronDown className="w-4 h-4" />
+        </button>
+        {isDropdownOpen && (
+          <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+            {professionals.map((professional) => (
+              <div
+                key={professional.id}
+                onClick={() => selectProfessional(professional.id)}
+                className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+              >
+                {professional.name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Calendar View */}

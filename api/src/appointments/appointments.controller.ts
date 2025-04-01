@@ -34,16 +34,18 @@ export class AppointmentsController {
     type: AppointmentDto,
   })
   @ApiBody({ type: AppointmentDto })
-  @Post()
+  @Post('/:professionalId')
   @HttpCode(HttpStatus.CREATED)
   createAppointment(
     @Body() appointmentData: AppointmentDto,
+    @Param('professionalId') professionalId: string,
     @GetUser('organizationId') organizationId: string,
   ) {
     console.log({ appointmentData });
     return this.appointmentsService.createAppointment(
       appointmentData,
       organizationId,
+      professionalId,
     );
   }
 

@@ -17,6 +17,7 @@ export class AppointmentsService {
   async createAppointment(
     appointmentData: AppointmentDto,
     organizationId: string,
+    professionalId: string,
   ) {
     console.log({ appointmentData });
     const client = await this.clientRepository.findOne({
@@ -33,6 +34,12 @@ export class AppointmentsService {
     const appointment = this.appointmentRepository.create({
       ...appointmentData,
       client,
+      organization: {
+        id: organizationId,
+      },
+      professional: {
+        id: professionalId,
+      },
     });
     return this.appointmentRepository.save(appointment);
   }
