@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { formatCNPJ, validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
+import { useUserStore } from "@/store/userStore";
+import { updateCompany } from "@/services/onboardingService";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -23,6 +25,10 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const t = useTranslations("Onboarding");
+
+  const { user } = useUserStore();
+
+  console.log(user, "the user ");
 
   const mockApiRequest = (endpoint: string, data: any) => {
     return new Promise((resolve) => {
@@ -57,7 +63,7 @@ export default function Onboarding() {
     setLoading(true);
     try {
       if (step === 1) {
-        await mockApiRequest("/organizations/update-info", companyInfo);
+        if (user) await updateCompany(user?.organization.id, companyInfo);
       } else if (step === 2) {
         await mockApiRequest("/organizations/select-plan", {
           plan: selectedPlan,
@@ -195,7 +201,11 @@ export default function Onboarding() {
               : "bg-teal-600 text-white hover:bg-teal-700"
           }`}
         >
-          {loading ? t("loading") : step === 3 ? t("finishButton") : t("nextButton")}
+          {loading
+            ? t("loading")
+            : step === 3
+            ? t("finishButton")
+            : t("nextButton")}
         </button>
       </div>
     </div>

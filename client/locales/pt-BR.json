@@ -76,7 +76,9 @@
     "confirmPassword": "Confirme a Senha",
     "signUpButton": "Cadastrar-se",
     "alreadyHaveAccount": "Já tem uma conta?",
-    "signInLink": "Entrar"
+    "signInLink": "Entrar",
+    "firstName": "Nome",
+    "lastName": "Sobrenome"
   },
   "CalendarPage": {
     "loading": "Carregando...",

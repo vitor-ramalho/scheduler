@@ -5,25 +5,49 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { register } from "@/services/authService";
+import { toast } from "@/components/ui/use-toast";
 
 export default function SignUp() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const t = useTranslations("SignUp");
   const router = useRouter();
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!firstName) newErrors.firstName = t("errors.firstName");
+    if (!lastName) newErrors.lastName = t("errors.lastName");
+    if (!organizationName) newErrors.organizationName = t("errors.organizationName");
+    if (!email || !/\S+@\S+\.\S+/.test(email)) newErrors.email = t("errors.email");
+    if (!password || password.length < 8) newErrors.password = t("errors.password");
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSignUp = async () => {
+    if (!validateForm()) return;
+
     setLoading(true);
-    setError("");
+    setErrors({});
     try {
-      await register(email, password, organizationName);
+      await register(email, password, organizationName, firstName, lastName);
+      toast({
+        title: t("toasts.success.title"),
+        description: t("toasts.success.description"),
+      });
       router.push("/onboarding");
     } catch (error: any) {
-      setError(error.message);
+      toast({
+        title: t("toasts.error.title"),
+        description: error.message || t("toasts.error.description"),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -35,34 +59,73 @@ export default function SignUp() {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
           {t("title")}
         </h2>
-        {error && (
-          <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
-        )}
-        <input
-          type="text"
-          placeholder={t("organizationName")}
-          value={organizationName}
-          onChange={(e) => setOrganizationName(e.target.value)}
-          className="w-full p-3 mb-4 border rounded text-gray-600"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 border rounded text-gray-600"
-        />
-        <input
-          type="password"
-          placeholder={t("password")}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 border rounded text-gray-600"
-        />
+        <div className="space-y-4">
+          <div>
+            <input
+              type="text"
+              placeholder={t("firstName")}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.firstName && (
+              <p className="text-red-500 text-sm">{errors.firstName}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder={t("lastName")}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.lastName && (
+              <p className="text-red-500 text-sm">{errors.lastName}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder={t("organizationName")}
+              value={organizationName}
+              onChange={(e) => setOrganizationName(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.organizationName && (
+              <p className="text-red-500 text-sm">{errors.organizationName}</p>
+            )}
+          </div>
+          <div>
+            <input
+              type="email"
+              placeholder={t("email")}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder={t("password")}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          </div>
+        </div>
         <button
           onClick={handleSignUp}
           disabled={loading}
-          className={`w-full py-2 rounded ${
+          className={`w-full mt-4 py-2 rounded ${
             loading
               ? "bg-teal-400 cursor-not-allowed"
               : "bg-teal-600 hover:bg-teal-700 text-white"

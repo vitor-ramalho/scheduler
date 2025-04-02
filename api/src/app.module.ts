@@ -9,6 +9,7 @@ import { configs } from './config';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { PlansModule } from './plans/plans.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
     AppointmentsModule,
     ClientsModule,
     OrganizationsModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

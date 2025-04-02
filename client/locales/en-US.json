@@ -76,7 +76,9 @@
     "password": "Password",
     "signUpButton": "Sign Up",
     "alreadyHaveAccount": "Already have an account?",
-    "signInLink": "Sign In"
+    "signInLink": "Sign In",
+    "firstName": "Name",
+    "lastName": "Last Name"
   },
   "CalendarPage": {
     "weekdays": {

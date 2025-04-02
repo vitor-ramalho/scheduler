@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +11,7 @@ import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
 import { Professional } from 'src/professional/entities/professional.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { Plan } from '../../plans/entities/plan.entity';
 
 @Entity({ name: 'organizations' })
 export class Organization {
@@ -23,7 +25,7 @@ export class Organization {
   slug: string;
 
   @Column({ nullable: true })
-  identifier?: string; // CNPJ
+  identifier?: string;
 
   @Column({ nullable: true })
   phone?: string;
@@ -31,8 +33,8 @@ export class Organization {
   @Column({ nullable: true })
   email?: string;
 
-  @Column({ default: 'basic' })
-  plan: string;
+  @ManyToOne(() => Plan, (plan) => plan.organizations, { eager: true })
+  plan: Plan;
 
   @Column({ default: true })
   isActive: boolean;

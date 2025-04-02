@@ -5,24 +5,42 @@ import { useAuth } from "@/hooks/useAuth";
 import { login } from "@/services/authService";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { toast } from "@/components/ui/use-toast";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { setLogin } = useAuth();
   const t = useTranslations("SignIn");
 
-  const handleSignIn = async () => {
-    setLoading(true);
-    setError(null);
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!email || !/\S+@\S+\.\S+/.test(email)) newErrors.email = t("errors.email");
+    if (!password) newErrors.password = t("errors.password");
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
+  const handleSignIn = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setErrors({});
     try {
       const user = await login(email, password);
+      toast({
+        title: t("toasts.success.title"),
+        description: t("toasts.success.description"),
+      });
       setLogin(user.accessToken); // Redirect to dashboard
     } catch (err: any) {
-      setError(err.message);
+      toast({
+        title: t("toasts.error.title"),
+        description: err.message || t("toasts.error.description"),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -34,25 +52,36 @@ export default function SignIn() {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
           {t("title")}
         </h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 border rounded text-gray-600"
-        />
-        <input
-          type="password"
-          placeholder={t("password")}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 border rounded text-gray-600"
-        />
+        <div className="space-y-4">
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder={t("password")}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          </div>
+        </div>
         <button
           onClick={handleSignIn}
-          className={`w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
+          className={`w-full mt-4 py-2 rounded ${
+            loading
+              ? "bg-teal-400 cursor-not-allowed"
+              : "bg-teal-600 hover:bg-teal-700 text-white"
           }`}
           disabled={loading}
         >
