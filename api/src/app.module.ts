@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { configs } from './config';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ClientsModule } from './clients/clients.module';
     UsersModule,
     AppointmentsModule,
     ClientsModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

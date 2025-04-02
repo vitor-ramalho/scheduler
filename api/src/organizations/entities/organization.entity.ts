@@ -22,6 +22,15 @@ export class Organization {
   @Column({ unique: true })
   slug: string;
 
+  @Column({ nullable: true })
+  identifier?: string; // CNPJ
+
+  @Column({ nullable: true })
+  phone?: string;
+
+  @Column({ nullable: true })
+  email?: string;
+
   @Column({ default: 'basic' })
   plan: string;
 

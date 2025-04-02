@@ -142,7 +142,6 @@ export class AuthService {
           id: organization.id,
           name: organization.name,
           slug: organization.slug,
-          plan: organization.plan,
         },
       },
       ...tokens,
