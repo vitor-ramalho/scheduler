@@ -2,26 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import api from "@/services/apiService";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { register } from "@/services/authService";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const t = useTranslations("SignUp");
+  const router = useRouter();
 
   const handleSignUp = async () => {
+    setLoading(true);
+    setError("");
     try {
-      await api.post("/auth/register", {
-        email,
-        password,
-        organizationName,
-      });
-      alert("Sign-up successful! Please sign in.");
-    } catch (error) {
-      alert("Sign-up failed!");
+      await register(email, password, organizationName);
+      router.push("/onboarding");
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,6 +35,9 @@ export default function SignUp() {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
           {t("title")}
         </h2>
+        {error && (
+          <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
+        )}
         <input
           type="text"
           placeholder={t("organizationName")}
@@ -54,9 +61,14 @@ export default function SignUp() {
         />
         <button
           onClick={handleSignUp}
-          className="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700"
+          disabled={loading}
+          className={`w-full py-2 rounded ${
+            loading
+              ? "bg-teal-400 cursor-not-allowed"
+              : "bg-teal-600 hover:bg-teal-700 text-white"
+          }`}
         >
-          {t("signUpButton")}
+          {loading ? t("loading") : t("signUpButton")}
         </button>
         <p className="text-center mt-4 text-sm text-gray-600">
           {t("alreadyHaveAccount")}

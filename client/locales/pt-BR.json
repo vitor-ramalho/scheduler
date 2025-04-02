@@ -227,5 +227,21 @@
         "remove": "Falha ao remover profissional."
       }
     }
+  },
+  "Onboarding": {
+    "companyIdentifier": "CNPJ",
+    "title": "Cadastre sua empresa",
+    "step1Title": "Informações da Empresa",
+    "companyName": "Nome da Empresa",
+    "phone": "Telefone",
+    "email": "E-mail",
+    "step2Title": "Escolha um Plano",
+    "basicPlan": "Plano Básico",
+    "proPlan": "Plano Pro",
+    "enterprisePlan": "Plano Empresarial",
+    "step3Title": "Finalizar Configuração",
+    "step3Description": "Parabéns! Você está pronto para começar.",
+    "nextButton": "Próximo",
+    "finishButton": "Finalizar"
   }
 }

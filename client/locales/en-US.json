@@ -226,5 +226,21 @@
         "remove": "Failed to remove professional."
       }
     }
+  },
+  "Onboarding": {
+    "companyIdentifier": "CNPJ",
+    "title": "Welcome to Onboarding",
+    "step1Title": "Company Information",
+    "companyName": "Company Name",
+    "phone": "Phone",
+    "email": "Email",
+    "step2Title": "Choose a Plan",
+    "basicPlan": "Basic Plan",
+    "proPlan": "Pro Plan",
+    "enterprisePlan": "Enterprise Plan",
+    "step3Title": "Complete Setup",
+    "step3Description": "Congratulations! You are ready to get started.",
+    "nextButton": "Next",
+    "finishButton": "Finish"
   }
 }

@@ -46,3 +46,21 @@ export async function logout() {
     console.error('Logout failed:', error.response?.data?.message || error.message);
   }
 }
+
+export async function register(email: string, password: string, organizationName: string) {
+  try {
+    const response = await api.post('/auth/register', {
+      email,
+      password,
+      organizationName,
+    });
+    const { user, accessToken, refreshToken } = response.data;
+
+    // Update the state immediately
+    useUserStore.getState().setUser(user, accessToken, refreshToken);
+
+    return { user, accessToken, refreshToken };
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Registration failed');
+  }
+}
