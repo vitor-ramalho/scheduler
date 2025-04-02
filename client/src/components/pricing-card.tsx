@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Check } from "lucide-react";
 import {
@@ -14,49 +15,50 @@ import {
 export default function PricingCard({
   item,
   user,
+  selectable = false,
+  selectedPlan,
+  onSelect,
+  onDeselect,
 }: {
   item: any;
   user: any | null;
+  selectable?: boolean;
+  selectedPlan?: string;
+  onSelect?: (planId: string) => void;
+  onDeselect?: () => void;
 }) {
-  // Handle checkout process
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selectable) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+        if (selectedPlan === item.id && onDeselect) {
+          onDeselect();
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectable, selectedPlan, item.id, onDeselect]);
+
   const handleCheckout = async (priceId: string) => {
     if (!user) {
-      // Redirect to login if user is not authenticated
       window.location.href = "/sign-in?redirect=pricing";
       return;
     }
 
     try {
-      // const { data, error } = await supabase.functions.invoke(
-      //   "supabase-functions-create-checkout",
-      //   {
-      //     body: {
-      //       price_id: priceId,
-      //       user_id: user.id,
-      //       return_url: `${window.location.origin}/dashboard`,
-      //     },
-      //     headers: {
-      //       "X-Customer-Email": user.email || "",
-      //     },
-      //   },
-      // );
-
-      // if (error) {
-      //   throw error;
-      // }
-
-      // Redirect to Stripe checkout
-      // if (data?.url) {
-      //   window.location.href = data.url;
-      // } else {
-      //   throw new Error("No checkout URL returned");
-      // }
+      // Placeholder for checkout logic
     } catch (error) {
       console.error("Error creating checkout session:", error);
     }
   };
 
-  // Define features based on plan type
   const getFeatures = (planName: string | undefined | null) => {
     const baseFeatures = [
       "Patient appointment scheduling",
@@ -97,7 +99,13 @@ export default function PricingCard({
 
   return (
     <Card
-      className={`w-[350px] relative overflow-hidden ${item.popular ? "border-2 border-teal-500 shadow-xl scale-105" : "border border-gray-200"}`}
+      ref={cardRef}
+      className={`w-[350px] relative overflow-hidden cursor-pointer ${
+        selectable && selectedPlan === item.id
+          ? "border-2 border-teal-500 shadow-xl scale-105"
+          : "border border-gray-200"
+      }`}
+      onClick={() => selectable && onSelect && onSelect(item.id)}
     >
       {item.popular && (
         <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50 opacity-30" />
@@ -113,7 +121,7 @@ export default function PricingCard({
         </CardTitle>
         <CardDescription className="flex items-baseline gap-2 mt-2">
           <span className="text-4xl font-bold text-gray-900">
-            ${item?.amount / 100}
+            ${item?.price}
           </span>
           <span className="text-gray-600">/{item?.interval}</span>
         </CardDescription>
@@ -128,16 +136,18 @@ export default function PricingCard({
           ))}
         </ul>
       </CardContent>
-      <CardFooter className="relative">
-        <Button
-          onClick={async () => {
-            await handleCheckout(item.id);
-          }}
-          className={`w-full py-6 text-lg font-medium bg-teal-600 hover:bg-teal-700`}
-        >
-          Get Started
-        </Button>
-      </CardFooter>
+      {!selectable && (
+        <CardFooter className="relative">
+          <Button
+            onClick={async () => {
+              await handleCheckout(item.id);
+            }}
+            className={`w-full py-6 text-lg font-medium bg-teal-600 hover:bg-teal-700`}
+          >
+            Get Started
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }

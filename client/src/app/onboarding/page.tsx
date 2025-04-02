@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { formatCNPJ, validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
 import { useUserStore } from "@/store/userStore";
 import { updateCompany } from "@/services/onboardingService";
+import { usePlanStore } from "@/store/planStore";
+import PricingCard from "@/components/pricing-card";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -28,7 +30,9 @@ export default function Onboarding() {
 
   const { user } = useUserStore();
 
-  console.log(user, "the user ");
+  const { plans, fetchPlans } = usePlanStore();
+
+  console.log(plans, "plans");
 
   const mockApiRequest = (endpoint: string, data: any) => {
     return new Promise((resolve) => {
@@ -65,8 +69,9 @@ export default function Onboarding() {
       if (step === 1) {
         if (user) await updateCompany(user?.organization.id, companyInfo);
       } else if (step === 2) {
-        await mockApiRequest("/organizations/select-plan", {
-          plan: selectedPlan,
+        await updateCompany(user?.organization.id, {
+          ...companyInfo,
+          planId: selectedPlan.id,
         });
       } else if (step === 3) {
         await mockApiRequest("/organizations/complete-onboarding", {});
@@ -84,6 +89,10 @@ export default function Onboarding() {
     setCompanyInfo({ ...companyInfo, [field]: value });
     setErrors({ ...errors, [field]: "" }); // Clear error for the field
   };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -146,43 +155,19 @@ export default function Onboarding() {
           </div>
         )}
         {step === 2 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step2Title")}
-            </h2>
-            <div className="flex justify-around mb-4">
-              <button
-                onClick={() => setSelectedPlan("basic")}
-                className={`px-4 py-2 rounded ${
-                  selectedPlan === "basic"
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {t("basicPlan")}
-              </button>
-              <button
-                onClick={() => setSelectedPlan("pro")}
-                className={`px-4 py-2 rounded ${
-                  selectedPlan === "pro"
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {t("proPlan")}
-              </button>
-              <button
-                onClick={() => setSelectedPlan("enterprise")}
-                className={`px-4 py-2 rounded ${
-                  selectedPlan === "enterprise"
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {t("enterprisePlan")}
-              </button>
-            </div>
-          </div>
+          <>
+            {plans.map((item) => (
+              <PricingCard
+                key={item.id}
+                item={item}
+                user={user}
+                selectable={true}
+                selectedPlan={selectedPlan}
+                onSelect={(planId) => setSelectedPlan(planId)}
+                onDeselect={() => setSelectedPlan("")}
+              />
+            ))}
+          </>
         )}
         {step === 3 && (
           <div>
