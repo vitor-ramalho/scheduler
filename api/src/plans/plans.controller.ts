@@ -10,7 +10,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PlansService } from './plans.service';
-import { Plan } from './entities/plan.entity';
 import { PlanDto } from './dto/plan.dto';
 import {
   ApiTags,

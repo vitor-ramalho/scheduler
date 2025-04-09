@@ -1,0 +1,166 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { formatCNPJ, validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
+import { useUserStore } from "@/store/userStore";
+import { updateCompany } from "@/services/onboardingService";
+import { usePlanStore } from "@/store/planStore";
+import PricingCard from "@/components/pricing-card";
+import CheckoutPage from "./CheckoutPage";
+import CompanyForm from "../company/CompanyForm";
+import toast from "react-hot-toast";
+
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+}
+
+export default function OnboardingPage() {
+  const [step, setStep] = useState(1);
+  const [companyInfo, setCompanyInfo] = useState({
+    identifier: "",
+    name: "",
+    phone: "",
+    email: "",
+  });
+  const [errors, setErrors] = useState({
+    identifier: "",
+    name: "",
+    phone: "",
+    email: "",
+  });
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const t = useTranslations("Onboarding");
+
+  const { user } = useUserStore();
+
+  const { plans, fetchPlans } = usePlanStore();
+
+  console.log(plans, "plans");
+
+  const mockApiRequest = (endpoint: string, data: any) => {
+    return new Promise((resolve) => {
+      console.log(`Mock API Request to ${endpoint} with data:`, data);
+      setTimeout(resolve, 1000); // Simulate network delay
+    });
+  };
+
+  const validateFields = () => {
+    const newErrors: any = {};
+    if (step === 1) {
+      if (!validateCNPJ(companyInfo.identifier)) {
+        newErrors.identifier = t("invalidCNPJ");
+      }
+      if (!companyInfo.name) {
+        newErrors.name = t("requiredField");
+      }
+      if (!companyInfo.phone) {
+        newErrors.phone = t("requiredField");
+      }
+      if (!companyInfo.email || !/\S+@\S+\.\S+/.test(companyInfo.email)) {
+        newErrors.email = t("invalidEmail");
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = async () => {
+    if (!validateFields()) return;
+
+    setLoading(true);
+    try {
+      if (step === 1) {
+        if (user) await updateCompany(user?.organization.id, companyInfo);
+      } else if (step === 2) {
+        if (!selectedPlan) {
+          toast.error("Please select a plan");
+          return;
+        }
+        await updateCompany(user?.organization.id, {
+          ...companyInfo,
+          planId: selectedPlan.id,
+        });
+      } else if (step === 3) {
+        await mockApiRequest("/organizations/complete-onboarding", {});
+        router.push("/dashboard");
+      }
+      setStep(step + 1);
+    } catch (error) {
+      console.error("Error during API request:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setCompanyInfo({ ...companyInfo, [field]: value });
+    setErrors({ ...errors, [field]: "" }); // Clear error for the field
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-lg bg-white p-8 rounded shadow-lg">
+        <h1 className="text-3xl font-bold text-center text-teal-600 mb-6">
+          {t("title")}
+        </h1>
+        {step === 1 && (
+          <CompanyForm
+            companyInfo={companyInfo}
+            handleInputChange={handleInputChange}
+            errors={errors}
+          />
+        )}
+        {step === 2 && (
+          <div className="flex justify-center items-center">
+            {plans.map((item) => (
+              <PricingCard
+                key={item.id}
+                item={item}
+                user={user}
+                selectable={true}
+                selectedPlan={selectedPlan}
+                onSelect={(plan) => setSelectedPlan(plan)}
+                onDeselect={() => setSelectedPlan(null)}
+              />
+            ))}
+          </div>
+        )}
+        {step === 3 && (
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              {t("step3Title")}
+            </h2>
+            <p className="text-gray-600">{t("step3Description")}</p>
+          </div>
+        )}
+        <button
+          onClick={handleNext}
+          disabled={loading}
+          className={`w-full py-2 rounded mt-6 ${
+            loading
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-teal-600 text-white hover:bg-teal-700"
+          }`}
+        >
+          {loading
+            ? t("loading")
+            : step === 3
+            ? t("finishButton")
+            : t("nextButton")}
+        </button>
+      </div>
+    </div>
+  );
+}

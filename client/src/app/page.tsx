@@ -16,12 +16,19 @@ import {
   CalendarClock,
   UserRound,
 } from "lucide-react";
+import { usePlanStore } from "@/store/planStore";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 export default function Home() {
+  const { plans, fetchPlans } = usePlanStore();
+
   const t = useTranslations("HomePage");
+  useEffect(() => {
+    fetchPlans();
+  }, []);
 
-
+  console.log(plans, "plans");
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <Navbar />
@@ -110,31 +117,14 @@ export default function Home() {
               {t("pricing.description")}
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                id: 1,
-                name: "Basic Plan",
-                amount: 2900, // $29.00
-                interval: "month",
-                popular: false,
-              },
-              {
-                id: 2,
-                name: "Pro Plan",
-                amount: 5900, // $59.00
-                interval: "month",
-                popular: true,
-              },
-              {
-                id: 3,
-                name: "Enterprise Plan",
-                amount: 0, // Custom pricing
-                interval: "custom",
-                popular: false,
-              },
-            ].map((item) => (
-              <PricingCard key={item.id} item={item} user={{}} />
+          <div className="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
+            {plans?.map((item) => (
+              <PricingCard
+                key={item.id}
+                item={item}
+                user={{}}
+                selectable={false}
+              />
             ))}
           </div>
         </div>

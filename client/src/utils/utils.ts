@@ -15,7 +15,7 @@ export function encodedRedirect(
   return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
 
-export const formatPhoneInput = (phone?: string) => {
+export const formatPhoneInput = (phone: string) => {
   if (!phone) return;
   const cleaned = phone.replace(/\D/g, "");
   const match = cleaned.match(/^(\d{2})(\d{1})(\d{4})(\d{4})$/);

@@ -245,5 +245,21 @@
     "step3Description": "Parabéns! Você está pronto para começar.",
     "nextButton": "Próximo",
     "finishButton": "Finalizar"
+  },
+  "Pricing": {
+    "features": {
+      "smartScheduling": "Agendamento inteligente",
+      "clientManagement": "Gerenciamento de clientes",
+      "emailReminders": "Lembretes por e-mail",
+      "hundredClients": " Até 100 clientes",
+      "oneProfessional": "1 profissional"
+    },
+    "plans": {
+      "Basic": "Básico"
+    },
+    "interval": {
+      "monthly": "mensal",
+      "yearly": "anual"
+    }
   }
 }

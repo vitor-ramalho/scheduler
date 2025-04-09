@@ -11,30 +11,44 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { useTranslations } from "next-intl";
+
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  interval?: string;
+  popular?: boolean;
+}
+
+interface PricingCardProps {
+  user: any;
+  item: Plan;
+  selectable?: boolean;
+  selectedPlan?: Plan | null;
+  onSelect?: (plan: Plan) => void;
+  onDeselect?: () => void;
+}
 
 export default function PricingCard({
-  item,
   user,
+  item,
   selectable = false,
   selectedPlan,
   onSelect,
   onDeselect,
-}: {
-  item: any;
-  user: any | null;
-  selectable?: boolean;
-  selectedPlan?: string;
-  onSelect?: (planId: string) => void;
-  onDeselect?: () => void;
-}) {
+}: PricingCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const t = useTranslations("Pricing");
 
   useEffect(() => {
     if (!selectable) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
-        if (selectedPlan === item.id && onDeselect) {
+        if (selectedPlan?.id === item.id && onDeselect) {
           onDeselect();
         }
       }
@@ -61,9 +75,9 @@ export default function PricingCard({
 
   const getFeatures = (planName: string | undefined | null) => {
     const baseFeatures = [
-      "Patient appointment scheduling",
-      "Calendar management",
-      "Email reminders",
+      t("features.smartScheduling"),
+      t("features.clientManagement"),
+      t("features.emailReminders"),
     ];
 
     if (!planName) {
@@ -73,7 +87,11 @@ export default function PricingCard({
     const planNameLower = planName.toLowerCase();
 
     if (planNameLower.includes("basic")) {
-      return [...baseFeatures, "Up to 100 patients", "1 practitioner"];
+      return [
+        ...baseFeatures,
+        t("features.hundredClients"),
+        t("features.oneProfessional"),
+      ];
     } else if (planNameLower.includes("pro")) {
       return [
         ...baseFeatures,
@@ -101,11 +119,11 @@ export default function PricingCard({
     <Card
       ref={cardRef}
       className={`w-[350px] relative overflow-hidden cursor-pointer ${
-        selectable && selectedPlan === item.id
+        selectable && selectedPlan?.id === item.id
           ? "border-2 border-teal-500 shadow-xl scale-105"
           : "border border-gray-200"
       }`}
-      onClick={() => selectable && onSelect && onSelect(item.id)}
+      onClick={() => selectable && onSelect && onSelect(item)}
     >
       {item.popular && (
         <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50 opacity-30" />
@@ -117,13 +135,15 @@ export default function PricingCard({
           </div>
         )}
         <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
-          {item.name}
+          {t("plans." + item.name)}
         </CardTitle>
         <CardDescription className="flex items-baseline gap-2 mt-2">
           <span className="text-4xl font-bold text-gray-900">
-            ${item?.price}
+            R${item?.price}
           </span>
-          <span className="text-gray-600">/{item?.interval}</span>
+          <span className="text-gray-600">
+            / {t("interval." + item?.interval)}
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent className="relative">
@@ -136,18 +156,6 @@ export default function PricingCard({
           ))}
         </ul>
       </CardContent>
-      {!selectable && (
-        <CardFooter className="relative">
-          <Button
-            onClick={async () => {
-              await handleCheckout(item.id);
-            }}
-            className={`w-full py-6 text-lg font-medium bg-teal-600 hover:bg-teal-700`}
-          >
-            Get Started
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }
