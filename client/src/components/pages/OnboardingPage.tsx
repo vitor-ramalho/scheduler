@@ -19,15 +19,30 @@ interface Plan {
   features: string[];
 }
 
+interface CompanyInfo {
+  identifier: string;
+  name: string;
+  phone: string;
+  email: string;
+  planId?: string;
+}
+
+interface ValidationErrors {
+  identifier: string;
+  name: string;
+  phone: string;
+  email: string;
+}
+
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
-  const [companyInfo, setCompanyInfo] = useState({
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     identifier: "",
     name: "",
     phone: "",
     email: "",
   });
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<ValidationErrors>({
     identifier: "",
     name: "",
     phone: "",
@@ -44,15 +59,21 @@ export default function OnboardingPage() {
 
   console.log(plans, "plans");
 
-  const mockApiRequest = (endpoint: string, data: any) => {
+  const mockApiRequest = (endpoint: string, data: unknown) => {
     return new Promise((resolve) => {
       console.log(`Mock API Request to ${endpoint} with data:`, data);
-      setTimeout(resolve, 1000); // Simulate network delay
+      setTimeout(resolve, 1000);
     });
   };
 
   const validateFields = () => {
-    const newErrors: any = {};
+    const newErrors: ValidationErrors = {
+      identifier: "",
+      name: "",
+      phone: "",
+      email: "",
+    };
+
     if (step === 1) {
       if (!validateCNPJ(companyInfo.identifier)) {
         newErrors.identifier = t("invalidCNPJ");
@@ -68,7 +89,7 @@ export default function OnboardingPage() {
       }
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.values(newErrors).every((error) => !error);
   };
 
   const handleNext = async () => {
@@ -77,16 +98,34 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       if (step === 1) {
-        if (user) await updateCompany(user?.organization.id, companyInfo);
+        if (!user?.organization?.id) {
+          toast.error("Organization ID is missing");
+          return;
+        }
+        const updatedCompany = await updateCompany(user.organization.id, companyInfo);
+        if (!updatedCompany) {
+          toast.error("Failed to update company information");
+          return;
+        }
+        setCompanyInfo(updatedCompany);
       } else if (step === 2) {
         if (!selectedPlan) {
           toast.error("Please select a plan");
           return;
         }
-        await updateCompany(user?.organization.id, {
+        if (!user?.organization?.id) {
+          toast.error("Organization ID is missing");
+          return;
+        }
+        const updatedCompany = await updateCompany(user.organization.id, {
           ...companyInfo,
           planId: selectedPlan.id,
         });
+        if (!updatedCompany) {
+          toast.error("Failed to update plan");
+          return;
+        }
+        setCompanyInfo(updatedCompany);
       } else if (step === 3) {
         await mockApiRequest("/organizations/complete-onboarding", {});
         router.push("/dashboard");
@@ -100,9 +139,13 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof CompanyInfo, value: string) => {
     setCompanyInfo({ ...companyInfo, [field]: value });
-    setErrors({ ...errors, [field]: "" }); // Clear error for the field
+    setErrors({ ...errors, [field]: "" });
+  };
+
+  const handleCheckoutSuccess = () => {
+    router.push("/dashboard");
   };
 
   useEffect(() => {
@@ -137,29 +180,24 @@ export default function OnboardingPage() {
             ))}
           </div>
         )}
-        {step === 3 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {t("step3Title")}
-            </h2>
-            <p className="text-gray-600">{t("step3Description")}</p>
-          </div>
+        {step === 3 && selectedPlan && (
+          <CheckoutPage
+            amount={59.99}
+          />
         )}
-        <button
-          onClick={handleNext}
-          disabled={loading}
-          className={`w-full py-2 rounded mt-6 ${
-            loading
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-teal-600 text-white hover:bg-teal-700"
-          }`}
-        >
-          {loading
-            ? t("loading")
-            : step === 3
-            ? t("finishButton")
-            : t("nextButton")}
-        </button>
+        {step !== 3 && (
+          <button
+            onClick={handleNext}
+            disabled={loading}
+            className={`w-full py-2 rounded mt-6 ${
+              loading
+                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-teal-600 text-white hover:bg-teal-700"
+            }`}
+          >
+            {loading ? t("loading") : t("nextButton")}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,10 @@
+{
+  "title": "Finalizar Pagamento",
+  "loading": "Carregando...",
+  "processing": "Processando...",
+  "pay": "Pagar",
+  "errorCreatingPayment": "Erro ao criar o pagamento. Por favor, tente novamente.",
+  "stripeNotLoaded": "O sistema de pagamento não está carregado. Por favor, tente novamente.",
+  "paymentSuccess": "Pagamento realizado com sucesso!",
+  "paymentError": "Erro ao processar o pagamento. Por favor, tente novamente."
+} 

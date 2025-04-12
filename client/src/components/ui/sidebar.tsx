@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { Calendar, Users, Bell, ClipboardList, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const t = useTranslations("Navbar");
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -31,7 +34,10 @@ export default function Sidebar() {
         )}
       >
         <div className="p-6">
-          <h2 className="text-xl font-bold text-teal-600 mb-6">MediSchedule</h2>
+          <h2 className="text-xl font-bold text-teal-600 mb-6 flex flex-row gap-1">
+            <Calendar className="h-6 w-6" />
+            {t("brand")}
+          </h2>
           <nav className="space-y-4">
             <Link
               href="/dashboard"

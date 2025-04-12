@@ -1,14 +1,11 @@
 "use client";
 
 import React from "react";
-// import Link from 'next/link';
-import { useAuth } from "@/hooks/useAuth"; // Assuming you have a custom hook for authentication
-import { useRouter } from "next/navigation";
-import CalendarPage from "./calendar/page";
+import CalendarPage from "./calendar/components/CalendarPage";
 
 export default function DashboardPage() {
   return (
-    <div className="p-6">
+    <div>
       <CalendarPage />
     </div>
   );

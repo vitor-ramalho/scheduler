@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Button } from "./ui/button";
 import { Check } from "lucide-react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
@@ -22,8 +19,14 @@ interface Plan {
   popular?: boolean;
 }
 
+interface User {
+  id: string;
+  email: string;
+  // Add other user properties as needed
+}
+
 interface PricingCardProps {
-  user: any;
+  user: User | null;
   item: Plan;
   selectable?: boolean;
   selectedPlan?: Plan | null;
@@ -39,39 +42,7 @@ export default function PricingCard({
   onSelect,
   onDeselect,
 }: PricingCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
   const t = useTranslations("Pricing");
-
-  useEffect(() => {
-    if (!selectable) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
-        if (selectedPlan?.id === item.id && onDeselect) {
-          onDeselect();
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [selectable, selectedPlan, item.id, onDeselect]);
-
-  const handleCheckout = async (priceId: string) => {
-    if (!user) {
-      window.location.href = "/sign-in?redirect=pricing";
-      return;
-    }
-
-    try {
-      // Placeholder for checkout logic
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-    }
-  };
 
   const getFeatures = (planName: string | undefined | null) => {
     const baseFeatures = [
@@ -117,7 +88,6 @@ export default function PricingCard({
 
   return (
     <Card
-      ref={cardRef}
       className={`w-[350px] relative overflow-hidden cursor-pointer ${
         selectable && selectedPlan?.id === item.id
           ? "border-2 border-teal-500 shadow-xl scale-105"

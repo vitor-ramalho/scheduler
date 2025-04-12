@@ -36,7 +36,7 @@
     }
   },
   "Navbar": {
-    "brand": "MediSchedule",
+    "brand": "Agendador",
     "links": {
       "features": "Funcionalidades",
       "pricing": "Preços",
@@ -128,7 +128,10 @@
     },
     "addEvent": "Adicionar Evento",
     "error": "Erro no calendario",
-    "selectProfessionalTitle": "Profissional"
+    "selectProfessionalTitle": "Profissional",
+    "placeholders": {
+      "selectProfessional": "Selecione o profissional"
+    }
   },
   "CreateAppointmentModal": {
     "titles": {

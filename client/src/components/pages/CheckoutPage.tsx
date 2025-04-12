@@ -6,14 +6,21 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
-import convertToSubcurrency from "@/utils/convertToSubcurrency";
+import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/utils/formatCurrency";
 
-const CheckoutPage = ({ amount }: { amount: number }) => {
+interface CheckoutPageProps {
+  amount: number;
+  onSuccess?: () => void;
+}
+
+const CheckoutPage = ({ amount, onSuccess }: CheckoutPageProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("Checkout");
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
@@ -21,17 +28,32 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
+      body: JSON.stringify({ 
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "brl",
+        payment_method_types: [
+          "card",
+          "boleto",
+          "pix"
+        ]
+      }),
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
-  }, [amount]);
+      .then((data) => setClientSecret(data.clientSecret))
+      .catch((error) => {
+        console.error("Error creating payment intent:", error);
+        setErrorMessage(t("errorCreatingPayment"));
+      });
+  }, [amount, t]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+    setErrorMessage(undefined);
 
     if (!stripe || !elements) {
+      setErrorMessage(t("stripeNotLoaded"));
+      setLoading(false);
       return;
     }
 
@@ -47,17 +69,21 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://www.localhost:3000/payment-success?amount=${amount}`,
+        return_url: `${window.location.origin}/payment-success?amount=${amount}`,
+        payment_method_data: {
+          billing_details: {
+            address: {
+              country: "BR"
+            }
+          }
+        }
       },
     });
 
     if (error) {
-      // This point is only reached if there's an immediate error when
-      // confirming the payment. Show the error to your customer (for example, payment details incomplete)
       setErrorMessage(error.message);
     } else {
-      // The payment UI automatically closes with a success animation.
-      // Your customer is redirected to your `return_url`.
+      onSuccess?.();
     }
 
     setLoading(false);
@@ -71,7 +97,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
           role="status"
         >
           <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-            Loading...
+            {t("loading")}
           </span>
         </div>
       </div>
@@ -79,18 +105,29 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-2 rounded-md">
-      {clientSecret && <PaymentElement />}
+    <div className="w-full max-w-md mx-auto">
+      <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+        {t("title")}
+      </h2>
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+        <PaymentElement 
+          
+        />
 
-      {errorMessage && <div>{errorMessage}</div>}
+        {errorMessage && (
+          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
+            {errorMessage}
+          </div>
+        )}
 
-      <button
-        disabled={!stripe || loading}
-        className="text-white w-full p-5 bg-black mt-2 rounded-md font-bold disabled:opacity-50 disabled:animate-pulse"
-      >
-        {!loading ? `Pay $${amount}` : "Processing..."}
-      </button>
-    </form>
+        <button
+          disabled={!stripe || loading}
+          className="w-full mt-6 py-3 px-4 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? t("processing") : `${t("pay")} ${formatCurrency(amount)}`}
+        </button>
+      </form>
+    </div>
   );
 };
 
