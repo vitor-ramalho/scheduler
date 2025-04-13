@@ -1,49 +1,16 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16
-    container_name: scheduler-postgres
+    container_name: scheduler-db
+    restart: always
+    environment:
+      POSTGRES_USER: scheduler
+      POSTGRES_PASSWORD: scheduler
+      POSTGRES_DB: scheduler_db
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: scheduler
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - scheduler-network
-
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    container_name: scheduler-api
-    ports:
-      - "3001:3000"
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@scheduler-postgres:5432/scheduler
-    depends_on:
-      - postgres
-    networks:
-      - scheduler-network
-
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: scheduler-client
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api
-    networks:
-      - scheduler-network
-
-networks:
-  scheduler-network:
-    driver: bridge
+      - postgres-data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  postgres-data:

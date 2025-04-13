@@ -20,7 +20,8 @@ export default function Onboarding() {
         options={{
           mode: "payment",
           amount: convertToSubcurrency(amount),
-          currency: "usd",
+          currency: "brl",
+          payment_method_types: ['pix'],
         }}
       >
         <OnboardingPage />

@@ -10,6 +10,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { PlansModule } from './plans/plans.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PlansModule } from './plans/plans.module';
     ClientsModule,
     OrganizationsModule,
     PlansModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

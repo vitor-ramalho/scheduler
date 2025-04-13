@@ -8,7 +8,7 @@ import { useUserStore } from "@/store/userStore";
 import { updateCompany } from "@/services/onboardingService";
 import { usePlanStore } from "@/store/planStore";
 import PricingCard from "@/components/pricing-card";
-import CheckoutPage from "./CheckoutPage";
+import PaymentPage from "@/components/payment/PaymentPage";
 import CompanyForm from "../company/CompanyForm";
 import toast from "react-hot-toast";
 
@@ -108,6 +108,7 @@ export default function OnboardingPage() {
           return;
         }
         setCompanyInfo(updatedCompany);
+        setStep(step + 1);
       } else if (step === 2) {
         if (!selectedPlan) {
           toast.error("Please select a plan");
@@ -126,11 +127,8 @@ export default function OnboardingPage() {
           return;
         }
         setCompanyInfo(updatedCompany);
-      } else if (step === 3) {
-        await mockApiRequest("/organizations/complete-onboarding", {});
-        router.push("/dashboard");
+        setStep(step + 1);
       }
-      setStep(step + 1);
     } catch (error) {
       console.error("Error during API request:", error);
       toast.error("An error occurred. Please try again.");
@@ -144,8 +142,12 @@ export default function OnboardingPage() {
     setErrors({ ...errors, [field]: "" });
   };
 
-  const handleCheckoutSuccess = () => {
+  const handlePaymentSuccess = () => {
     router.push("/dashboard");
+  };
+
+  const handlePaymentCancel = () => {
+    setStep(2);
   };
 
   useEffect(() => {
@@ -181,8 +183,10 @@ export default function OnboardingPage() {
           </div>
         )}
         {step === 3 && selectedPlan && (
-          <CheckoutPage
-            amount={59.99}
+          <PaymentPage
+            amount={selectedPlan.price}
+            onSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
           />
         )}
         {step !== 3 && (

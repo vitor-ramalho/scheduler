@@ -95,9 +95,9 @@ const CalendarPage = () => {
       return <div className="text-center p-4">{t("loading")}</div>;
     }
 
-    if (professionals.length === 0) {
-      alert("Favor Cadastrar Profissional");
-    }
+    // if (professionals.length === 0) {
+    //   alert("Favor Cadastrar Profissional");
+    // }
 
     if (error) {
       return (
