@@ -29,7 +29,11 @@ describe('ClientsController', () => {
 
   describe('create', () => {
     it('should call service.create with organizationId and return the result', async () => {
-      const clientData = { name: 'John Doe', email: 'john@example.com' };
+      const clientData = {
+        name: 'John Doe',
+        email: 'john@example.com',
+        identifier: 'some-identifier', phone: '123-456-7890',
+      };
       const createdClient = { id: '1', ...clientData };
 
       jest.spyOn(service, 'create').mockResolvedValue(createdClient as any);

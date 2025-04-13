@@ -9,6 +9,7 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
+
       providers: [
         AppService,
         {
@@ -23,10 +24,21 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  it('should return health status', async () => {
-    const result = { status: 'online', database: true };
-    jest.spyOn(appController, 'getHealth').mockResolvedValue(result);
+  it('should be defined', () => {
+    expect(appController).toBeDefined();
+  });
 
-    expect(await appController.getHealth()).toEqual(result);
+  it('should return health status online', async () => {
+    const result = { status: 'online', database: true };
+    jest.spyOn(appController, 'getHealth').mockResolvedValue(Promise.resolve(result));
+    const health = await appController.getHealth()
+    expect(health).toEqual(result);
+  });
+
+    it('should return a greeting message', async () => {
+      const result = 'Hello World!';
+      jest.spyOn(appController, 'getHello').mockReturnValue(result);
+      const hello = appController.getHello()
+      expect(hello).toEqual(result);
   });
 });

@@ -9,8 +9,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Client } from '../../clients/entities/client.entity';
-import { Professional } from 'src/professional/entities/professional.entity';
-import { Organization } from 'src/organizations/entities/organization.entity';
+import { Professional } from '../../professional/entities/professional.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 @Entity({ name: 'appointments' })
 export class Appointment {

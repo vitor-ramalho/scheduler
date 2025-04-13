@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
-import { Professional } from 'src/professional/entities/professional.entity';
-import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { Professional } from '../../professional/entities/professional.entity';
+import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Plan } from '../../plans/entities/plan.entity';
 
 @Entity({ name: 'organizations' })
