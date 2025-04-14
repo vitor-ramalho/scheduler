@@ -26,7 +26,7 @@ export class AbacatePayProvider implements PaymentProvider {
 
     async generatePixQrCode(data: GeneratePixDto): Promise<PIXPaymentResponse> { 
         try {
-            const response = await axios.post(`${this.apiUrl}/pixQrCode/create`, data);
+            const response = await axios.post(`${this.apiUrl}/pixQrCode/create`, data, { headers: this.headers });
             return response.data;
         } catch (error) {
             throw new Error(`AbacatePay PIX QR code generation failed: ${error.message}`);

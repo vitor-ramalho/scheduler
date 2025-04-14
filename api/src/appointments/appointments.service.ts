@@ -71,7 +71,7 @@ export class AppointmentsService {
       },
     });
 
-    if (!appointments) {
+    if (appointments.length === 0) {
       throw new NotFoundException('Appointments not found');
     }
 

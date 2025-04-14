@@ -61,7 +61,7 @@ export class PlansController {
   @ApiParam({ name: 'id', description: 'ID of the plan' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.plansService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.plansService.remove(id);
   }
 }

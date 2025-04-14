@@ -37,7 +37,12 @@ describe('ClientsService', () => {
 
   describe('create', () => {
     it('should create and save a client', async () => {
-      const clientData = { name: 'John Doe', email: 'john@example.com' };
+      const clientData = {
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '1234567890',
+        identifier: '12526555452'
+      };
       const createdClient = { id: '1', ...clientData };
 
       jest.spyOn(clientRepository, 'create').mockReturnValue(createdClient as Client);

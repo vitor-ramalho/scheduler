@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentProvider } from './interfaces/payment.provider.interface';
 import { GeneratePixDto } from './providers/dto/generate-pix.dto';
 import { CreatePaymentDTO } from './dto/create-payment.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class PaymentService {

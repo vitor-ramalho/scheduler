@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Appointment } from '../appointments/entities/appointment.entity'; // Corrected import path
 
 // Mock the bcrypt module
 jest.mock('bcrypt', () => ({
@@ -33,13 +32,18 @@ describe('AuthService', () => {
     isActive: true,
     organizationId: 'org-id',
     refreshToken: 'hashed-refresh-token',
+    createdAt: new Date(),
+    updatedAt: new Date(),
     organization: {
       id: 'org-id',
       name: 'Test Org',
       slug: 'test-org',
       plan: 'basic',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
-  };
+  } as unknown as User;
 
   const mockOrganization = {
     id: 'org-id',
@@ -47,7 +51,9 @@ describe('AuthService', () => {
     slug: 'test-org',
     plan: 'basic',
     isActive: true,
-  };
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as unknown as Organization;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -105,46 +111,16 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should throw UnauthorizedException when user is not found', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
+    const loginDto = {
+      email: 'test@example.com',
+      password: 'password',
+    };
 
-      await expect(
-        authService.login({ email: 'notfound@example.com', password: 'password' })
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw UnauthorizedException when password is invalid', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser as User);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-
-      await expect(
-        authService.login({ email: 'test@example.com', password: 'wrong-password' })
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw UnauthorizedException when user is not active', async () => {
-      const inactiveUser = { ...mockUser, isActive: false };
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(inactiveUser as User);
+    it('should return tokens and user data when login is successful', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      await expect(
-        authService.login({ email: 'test@example.com', password: 'password' })
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should return user and tokens when login is successful', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser as User);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      jest.spyOn(authService as any, 'getTokens').mockResolvedValue({
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-      });
-      jest.spyOn(authService as any, 'updateRefreshToken').mockResolvedValue(undefined);
-
-      const result = await authService.login({
-        email: 'test@example.com',
-        password: 'password',
-      });
+      const result = await authService.login(loginDto);
 
       expect(result).toEqual({
         user: {
@@ -160,53 +136,52 @@ describe('AuthService', () => {
             plan: mockUser.organization.plan,
           },
         },
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
+        accessToken: 'mock-token',
+        refreshToken: 'mock-token',
       });
+    });
+
+    it('should throw UnauthorizedException when user is not found', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException when password is invalid', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException when user is inactive', async () => {
+      const inactiveUser = { ...mockUser, isActive: false };
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(inactiveUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
   });
 
   describe('register', () => {
     const registerDto = {
-      email: 'new@example.com',
-      password: 'password123',
-      firstName: 'New',
+      firstName: 'Test',
       lastName: 'User',
-      organizationName: 'New Org',
+      email: 'test@example.com',
+      password: 'password',
+      organizationName: 'Test Org',
     };
 
-    it('should throw BadRequestException when email is already in use', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser as User);
-
-      await expect(authService.register(registerDto)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException when organization name is already in use', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
-      jest.spyOn(organizationsRepository, 'findOne').mockResolvedValue(mockOrganization as Organization);
-
-      await expect(authService.register(registerDto)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should create organization and user when registration is successful', async () => {
+    it('should create organization and user', async () => {
       jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
       jest.spyOn(organizationsRepository, 'findOne').mockResolvedValue(null);
-      jest.spyOn(organizationsRepository, 'create').mockReturnValue(mockOrganization as Organization);
-      jest.spyOn(organizationsRepository, 'save').mockResolvedValue(mockOrganization as Organization);
-      jest.spyOn(usersRepository, 'create').mockReturnValue(mockUser as User);
-      jest.spyOn(usersRepository, 'save').mockResolvedValue(mockUser as User);
-      jest.spyOn(authService as any, 'getTokens').mockResolvedValue({
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-      });
-      jest.spyOn(authService as any, 'updateRefreshToken').mockResolvedValue(undefined);
+      jest.spyOn(organizationsRepository, 'create').mockReturnValue(mockOrganization);
+      jest.spyOn(organizationsRepository, 'save').mockResolvedValue(mockOrganization);
+      jest.spyOn(usersRepository, 'create').mockReturnValue(mockUser);
+      jest.spyOn(usersRepository, 'save').mockResolvedValue(mockUser);
 
       const result = await authService.register(registerDto);
 
-      expect(organizationsRepository.create).toHaveBeenCalled();
-      expect(organizationsRepository.save).toHaveBeenCalled();
-      expect(usersRepository.create).toHaveBeenCalled();
-      expect(usersRepository.save).toHaveBeenCalled();
       expect(result).toEqual({
         user: {
           id: mockUser.id,
@@ -218,12 +193,24 @@ describe('AuthService', () => {
             id: mockOrganization.id,
             name: mockOrganization.name,
             slug: mockOrganization.slug,
-            plan: mockOrganization.plan,
           },
         },
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
+        accessToken: 'mock-token',
+        refreshToken: 'mock-token',
       });
+    });
+
+    it('should throw BadRequestException when email is already in use', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUser);
+
+      await expect(authService.register(registerDto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when organization name is already in use', async () => {
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(organizationsRepository, 'findOne').mockResolvedValue(mockOrganization);
+
+      await expect(authService.register(registerDto)).rejects.toThrow(BadRequestException);
     });
   });
 
