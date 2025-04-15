@@ -1,9 +1,23 @@
+import React from 'react';
+import EventActionsModal from '@/components/modals/EventActionsModal';
+
+interface Event {
+  id: string;
+  clientName: string;
+  start: Date;
+  end: Date;
+  color: string;
+}
+
 interface TimelineProps {
   currentDate: Date;
-  events: any;
+  events: Event[];
 }
 
 const Timeline = ({ currentDate, events }: TimelineProps) => {
+  const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
   const generateTimeSlots = () => {
     const slots = [];
     const selectedDate = new Date(currentDate); // Use the selected day
@@ -16,7 +30,7 @@ const Timeline = ({ currentDate, events }: TimelineProps) => {
 
         slots.push({
           time: slotTime,
-          events: events.filter((event) => {
+          events: events.filter((event: Event) => {
             const eventStart = new Date(event.start); // Convert to Date object
             const eventEnd = new Date(event.end); // Convert to Date object
             const slotStart = new Date(slotTime);
@@ -31,6 +45,11 @@ const Timeline = ({ currentDate, events }: TimelineProps) => {
   };
 
   const timeSlots = generateTimeSlots();
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="relative w-full">
@@ -57,13 +76,13 @@ const Timeline = ({ currentDate, events }: TimelineProps) => {
 
             {/* Event Slot */}
             <div className="flex-grow relative">
-              {slot.events.map((event) => {
+              {slot.events.map((event: Event) => {
                 console.log("Rendering event:", event);
                 const startMinuteOfDay =
                   event.start.getHours() * 60 + event.start.getMinutes();
                 const slotMinuteOfDay =
                   slot.time.getHours() * 60 + slot.time.getMinutes();
-                const eventDuration = (event.end - event.start) / (1000 * 60); // duration in minutes
+                const eventDuration = (event.end.getTime() - event.start.getTime()) / (1000 * 60); // duration in minutes
 
                 // Determine if this slot is the start of the event
                 const isEventStart = startMinuteOfDay === slotMinuteOfDay;
@@ -77,27 +96,15 @@ const Timeline = ({ currentDate, events }: TimelineProps) => {
                             rounded p-1 text-sm
                             border-l-4 border-blue-500
                             overflow-hidden
+                            cursor-pointer
                           `}
                       style={{
                         height: `${Math.max(eventDuration, 15)}px`, // Minimum 15-minute height
                         minHeight: "30px",
                       }}
+                      onClick={() => handleEventClick(event)}
                     >
-                      <div className="font-semibold">{event.clientName}</div>{" "}
-                      {/* Render client name */}
-                      <div className="text-xs">
-                        {event.start.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}{" "}
-                        -
-                        {event.end.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
-                      </div>
+                      <div className="font-semibold truncate">{event.clientName}</div>
                     </div>
                   )
                 );
@@ -106,6 +113,15 @@ const Timeline = ({ currentDate, events }: TimelineProps) => {
           </div>
         );
       })}
+
+      {/* Event Actions Modal */}
+      {selectedEvent && (
+        <EventActionsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          event={selectedEvent}
+        />
+      )}
     </div>
   );
 };
