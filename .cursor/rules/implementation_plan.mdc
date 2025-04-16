@@ -1,0 +1,281 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Implementation Plan for Appointment Schedule SaaS Platform
+
+## Project Goal
+Develop a multi-tenant SaaS application for appointment scheduling targeted at service providers (doctors' offices, beauty salons, tattoo studios, etc.). The application should allow organizations (tenants) to manage professionals, appointments, clients, and handle user permissions. It will also include AI-powered WhatsApp integration for client communication, a client-facing booking interface, and a backoffice interface for SaaS administration.
+
+## Technology Stack
+- **Frontend:** Next.js (TypeScript), Tailwind CSS, React Query/SWR, FullCalendar.js
+- **Backend:** Node.js (TypeScript), Express.js
+- **Database:** PostgreSQL (v16+) with Prisma ORM
+- **Authentication:** JWT
+- **WhatsApp Integration:** WhatsApp Business API, OpenAI API (for AI-powered responses)
+- **Testing:** Jest (Unit & Integration), Supertest (Integration), Cypress/Playwright (E2E - Optional/Later Phase)
+- **Deployment:** Vercel (Frontend), AWS/Heroku/Fly.io (Backend), Managed PostgreSQL Service (e.g., AWS RDS, Supabase)
+- **Payment Processing:** Stripe for subscription billing
+
+## Phases & Milestones
+
+### Phase 0: Setup & Foundation (Sprint 1)
+
+1. **Initialize Project Repositories:**
+   * Create separate Git repositories for frontend and backend (or a monorepo).
+   * Setup `README.md`, `LICENSE`, `.gitignore`.
+
+2. **Backend Setup:**
+   * Initialize Node.js project (`npm init`).
+   * Install core dependencies: TypeScript, Express, `@prisma/client`, `pg`, dotenv, bcryptjs, jsonwebtoken, cors.
+   * Configure TypeScript (`tsconfig.json`).
+   * Setup basic Express server (`src/app.ts`).
+   * Implement basic directory structure, adjusted for Prisma.
+   * Setup ESLint and Prettier.
+   * Configure environment variables (`.env`, especially `DATABASE_URL`).
+   * Setup basic logging (Winston or Pino).
+   * Initialize Prisma (`npx prisma init --datasource-provider postgresql`).
+
+3. **Frontend Setup:**
+   * Initialize Next.js project (`npx create-next-app`).
+   * Install core dependencies: Tailwind CSS, Axios/fetch wrapper, React Query/SWR, FullCalendar.js.
+   * Configure TypeScript, ESLint, Prettier.
+   * Setup basic folder structure.
+   * Configure Tailwind CSS.
+   * Setup `shadcn/ui`.
+
+4. **Database Setup:**
+   * Set up PostgreSQL instance (local via Docker or cloud service).
+   * Define initial Prisma connection in `schema.prisma` using `DATABASE_URL`.
+   * Instantiate Prisma Client singleton for use in the backend.
+
+5. **Landing Page Setup:**
+   * Create initial marketing landing page with pricing information.
+   * Add sign-up form that connects to backend registration API.
+
+6. **Tooling & CI/CD:**
+   * Setup basic CI pipeline (e.g., GitHub Actions) for linting, building, `prisma generate`.
+   * Configure Jest for backend testing.
+
+### Phase 1: Core Tenant & User Management (Sprints 2-3)
+
+1. **Backend - Schema Definition:**
+   * Define models for `Plan`, `Organization`, `User`, `Role`, and `Professional` in `prisma/schema.prisma`. Define relations.
+   * Create initial database migration using `npx prisma migrate dev --name init`.
+
+2. **Backend - Authentication:**
+   * Implement user registration endpoint (creating Org and User using Prisma Client, hash password in service).
+   * Implement user login endpoint (find user via Prisma, compare hash, return JWT).
+   * Implement password hashing (`bcryptjs`) in the service layer.
+   * Implement JWT generation/verification utilities.
+   * Implement `authMiddleware` and `tenantMiddleware` using Prisma Client for validation.
+
+3. **Backend - Organization Management (for Backoffice):**
+   * Implement CRUD API endpoints using Prisma Client for managing `Organizations` and `Plans`.
+
+4. **Backend - User Management (within Tenant):**
+   * Implement CRUD API endpoints using Prisma Client for managing users within their organization (use `where` clauses for `organizationId`).
+   * Implement role-based access control middleware (`restrictTo`).
+
+5. **Frontend - Authentication Pages:**
+   * Create Login & Registration pages using shadcn/ui.
+   * Implement API calls to backend auth endpoints.
+   * Implement token storage and protected routes.
+
+6. **Frontend - Basic Layout:**
+   * Create main application layout (Sidebar, Header).
+   * Implement logout functionality.
+
+7. **Frontend - User Management UI (Tenant):**
+   * Create page/components using `DataTable` and `Dialog`/`Form` to list, create, edit users, calling relevant backend APIs.
+
+8. **Frontend - Onboarding Flow:**
+   * Create multi-step onboarding process for new organizations.
+   * Guide users through creating their profile, adding professionals, configuring business hours.
+
+9. **Testing:**
+   * Write Unit tests (mocking Prisma Client) and Integration tests (using PostgreSQL test database managed by Prisma Migrate) for Phase 1 backend features.
+
+### Phase 2: Professional & Service Management (Sprints 4-5)
+
+1. **Backend - Schema Definition:**
+   * Define models for `Professional`, `Service`, `BusinessHours`, `TimeOff` in `prisma/schema.prisma`. Add relations and constraints.
+   * Create migration using `npx prisma migrate dev`.
+
+2. **Backend - Professional Module:**
+   * Implement CRUD API endpoints for `Professionals` using Prisma Client (scoped by `organizationId`).
+   * Implement availability logic (checking business hours, time off, and existing appointments).
+
+3. **Backend - Service Module:**
+   * Implement CRUD API endpoints for `Services` using Prisma Client (scoped by `organizationId`).
+   * Implement logic for assigning services to professionals.
+
+4. **Backend - Business Hours & Time Off:**
+   * Implement API endpoints for setting business hours.
+   * Implement API endpoints for managing time off periods.
+
+5. **Frontend - Professional Module UI:**
+   * Create page/components using `DataTable`, `Dialog`/`Form` for listing, adding, editing professionals. Fetch data via React Query/SWR.
+   * Create page/components for managing professional details and schedules.
+
+6. **Frontend - Service Module UI:**
+   * Implement UI for creating, editing, and managing services.
+   * Create interface for assigning services to professionals.
+
+7. **Frontend - Business Hours & Time Off UI:**
+   * Create interface for setting business hours.
+   * Create interface for managing time off periods.
+
+8. **Testing:**
+   * Write Unit tests (mocking Prisma) and Integration tests (using PostgreSQL test DB) for Phase 2 backend features.
+
+### Phase 3: Appointment & Client Management (Sprints 6-7)
+
+1. **Backend - Schema Definition:**
+   * Define models for `Client`, `Appointment`, `AppointmentStatus` in `prisma/schema.prisma`. Define relations and constraints.
+   * Create migration using `npx prisma migrate dev`.
+
+2. **Backend - Client Module:**
+   * Implement CRUD API endpoints for `Clients` using Prisma Client (scoped by `organizationId`).
+
+3. **Backend - Appointment Module:**
+   * Implement API endpoint for creating appointments (`POST /api/v1/appointments`).
+   * Implement validation logic to prevent double-booking and respect service duration.
+   * Implement API endpoints for listing/viewing/updating appointments using Prisma Client.
+   * Implement appointment status transitions (booked, confirmed, completed, cancelled, no-show).
+
+4. **Frontend - Client Module UI:**
+   * Create page/components using `DataTable`, `Dialog`/`Form` for managing clients.
+
+5. **Frontend - Appointment Module UI:**
+   * Create calendar views (week, month, timeline) using FullCalendar.js.
+   * Implement appointment creation form with client, service, and professional selection.
+   * Create interface for managing appointment status.
+   * Implement filters for viewing appointments by professional.
+
+6. **Testing:**
+   * Write Unit tests (mocking Prisma) and Integration tests (using PostgreSQL test DB) for Phase 3 backend features.
+
+### Phase 4: WhatsApp Integration & AI Communication (Sprint 8-9)
+
+1. **Backend - WhatsApp Integration:**
+   * Set up WhatsApp Business API connection.
+   * Implement webhook handlers for incoming WhatsApp messages.
+   * Create message queue system for outgoing notifications.
+
+2. **Backend - AI Communication Engine:**
+   * Integrate OpenAI API for message processing.
+   * Implement conversational flows for appointment booking, confirmation, and rescheduling.
+   * Create templates for common notification scenarios.
+
+3. **Backend - Notification System:**
+   * Implement automatic appointment reminders.
+   * Create notification system for appointment changes.
+   * Implement follow-up messages after appointments.
+
+4. **Frontend - WhatsApp Configuration UI:**
+   * Create page for WhatsApp connection setup.
+   * Implement message template customization.
+   * Create interface for viewing message history with clients.
+
+5. **Frontend - AI Configuration UI:**
+   * Create interface for customizing AI communication style.
+   * Implement testing tools for message flows.
+
+6. **Testing:**
+   * Write Integration tests for WhatsApp API integration.
+   * Test AI conversation flows with sample scenarios.
+
+### Phase 5: Dashboard & Analytics (Sprint 10)
+
+1. **Backend - Aggregation/Reporting Endpoints:**
+   * Develop API endpoints using Prisma Client to fetch aggregated dashboard data (appointment counts, revenue, client statistics) scoped by `organizationId`.
+   * Create endpoints for professional performance metrics.
+
+2. **Frontend - Dashboard UI:**
+   * Create Dashboard page using shadcn/ui (`StatCard`, `DataTable`) and Recharts.
+   * Fetch aggregated data from backend endpoints using React Query/SWR.
+   * Display KPIs, charts, and upcoming appointments.
+   * Create visualizations for appointment trends and busy times.
+
+3. **Testing:**
+   * Write Integration tests for dashboard/reporting endpoints, verifying aggregation results.
+
+### Phase 6: Client Booking Portal (Sprint 11-12)
+
+1. **Backend - Public Booking API:**
+   * Create public endpoints for retrieving available services, professionals, and time slots.
+   * Implement appointment creation endpoint with proper validation.
+   * Create authentication/verification for client accounts (optional feature).
+
+2. **Frontend - Client Booking Interface:**
+   * Develop public facing booking portal.
+   * Implement service selection, professional selection, and time slot selection.
+   * Create appointment confirmation flow.
+   * Implement responsive design for mobile users.
+
+3. **Integration - WhatsApp Booking Flow:**
+   * Implement conversational booking flow through WhatsApp.
+   * Create service selection, date selection, and confirmation via WhatsApp.
+
+4. **Testing:**
+   * Write Integration tests for public booking API.
+   * Test booking flows on multiple devices.
+
+### Phase 7: Subscription & Billing (Sprint 13-14)
+
+1. **Backend - Stripe Integration:**
+   * Implement Stripe API integration for subscription billing.
+   * Create webhook handlers for payment events.
+   * Implement plan upgrade/downgrade logic.
+   * Setup automatic invoice generation.
+
+2. **Backend - Plan Enforcement:**
+   * Implement checks in relevant services to enforce plan limits (professionals, appointments, services).
+   * Create usage tracking for metered billing features.
+
+3. **Frontend - Billing UI:**
+   * Create subscription management interface.
+   * Implement plan upgrade/downgrade UI.
+   * Create payment method management interface.
+   * Display billing history and invoices.
+
+4. **Testing:**
+   * Test Stripe integration with test cards.
+   * Verify plan limit enforcement.
+
+### Phase 8: Refinement, Deployment & Documentation (Sprint 15+)
+
+1. **Refinement:**
+   * Address UI/UX feedback.
+   * Optimize performance: Analyze Prisma query performance, add DB indexes, optimize frontend rendering.
+   * Enhance error handling and logging.
+   * Implement advanced features (wait lists, recurring appointments, custom fields).
+
+2. **Deployment:**
+   * Configure production environments (backend, frontend, PostgreSQL DB, pgBouncer).
+   * Setup environment variables securely.
+   * Configure Dockerfile for backend (include `prisma generate`).
+   * Update CI/CD pipeline to run `prisma migrate deploy` against production DB and deploy frontend/backend.
+   * Configure hosting, domains, SSL.
+
+3. **Documentation:**
+   * Finalize API documentation (Swagger/OpenAPI).
+   * Write user guides and help documentation.
+   * Create onboarding tutorials and videos.
+   * Update `README.md` files (include Prisma migration instructions).
+
+4. **E2E Testing:**
+   * Implement E2E tests for critical user flows using Cypress/Playwright against a staging environment.
+
+## Assumptions & Considerations
+
+- **Multi-tenant Architecture:** The system uses a single database with tenant isolation at the row level via `organizationId`.
+- **Scheduling Complexity:** The system handles varying appointment durations, professional availability, and preventing double-booking.
+- **WhatsApp Integration:** Requires proper webhook handling and message queuing for reliability.
+- **AI Integration:** Balances automated responses with customization options for organizations.
+- **Security:** Special attention needed for public booking endpoints and client data protection.
+- **Scalability:** Monitor PostgreSQL performance; implement connection pooling (pgBouncer). Consider read replicas for high-traffic tenants.
+- **Compliance:** System should be designed with consideration for healthcare regulations (HIPAA, GDPR) for medical use cases.
+- **Offline Support:** Consider implementing progressive web app (PWA) features for limited offline functionality.

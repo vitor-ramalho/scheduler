@@ -1,0 +1,463 @@
+---
+description: 
+globs: 
+alwaysApply: true
+app_language: pt-BR
+---
+# Backend Structure Document
+
+## API Architecture
+
+### RESTful API Structure
+- Implement a RESTful API using Express.js with TypeScript
+- Organize endpoints by resource domains: `/api/v1/[resource]`
+- Main resource domains: `organizations`, `users`, `professionals`, `services`, `clients`, `appointments`, `availability`
+- Include tenant identification in all routes except public and authentication endpoints
+- All user-facing messages returned by the API should be in Portuguese (pt-BR)
+
+### Multi-Tenant Design
+- Implement tenant isolation through middleware
+- All database queries must include tenant filters
+- Store `tenantId` (organizationId) in JWT payload
+- Apply tenant filtering at the repository layer
+- Implement tenant middleware to validate requests
+
+### Authentication & Authorization
+- JWT-based authentication with refresh token rotation
+- Role-based access control (RBAC) with granular permissions
+- Permission structure: `[action]:[resource]` (e.g., `read:appointments`, `create:professionals`)
+- Support for inviting users with predefined roles (admin, receptionist, professional)
+- Secure password handling with bcrypt and proper salt rounds
+
+### API Response Format
+```typescript
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string; // Messages in Portuguese (pt-BR)
+    details?: any;
+  };
+  meta?: {
+    pagination?: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    }
+  }
+}
+```
+
+### Error Handling
+- Implement centralized error handling middleware with Portuguese error messages
+- Use custom error classes extending from a base AppError
+- Include status codes, error codes, and user-friendly messages in Portuguese
+- Log detailed errors but return sanitized responses to clients
+- Handle validation errors separately with field-specific messages
+
+## Database Design
+
+### Core Schema
+- `organizations`: Multi-tenant root entity
+- `organization_plans`: Subscription plans for organizations
+- `users`: User accounts linked to organizations
+- `roles`: Role definitions with permissions
+- `professionals`: Professional profiles within organizations
+- `services`: Services offered by professionals
+- `availability`: Working hours and availability slots
+- `clients`: Customer information
+- `appointments`: Appointment records
+- `whatsapp_templates`: Templates for WhatsApp communication
+
+### Example Schema Design
+
+#### Organizations Table
+```typescript
+interface Organization {
+  id: string; // UUID primary key
+  name: string;
+  planId: string; // Foreign key to plans
+  businessType: 'MEDICAL' | 'BEAUTY' | 'TATTOO' | 'OTHER';
+  address?: string;
+  phone?: string;
+  email: string;
+  logo?: string;
+  whatsappBusinessId?: string; // For WhatsApp integration
+  settings: Record<string, any>; // JSON field for org settings including WhatsApp settings
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Users Table
+```typescript
+interface User {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID, foreign key to organizations
+  email: string;
+  passwordHash: string;
+  firstName: string;
+  lastName: string;
+  roleId: string; // Foreign key to roles
+  professionalId?: string; // If user is also a professional
+  active: boolean;
+  lastLogin?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Professionals Table
+```typescript
+interface Professional {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  userId?: string; // Optional link to user account
+  name: string;
+  specialty?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  photo?: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Services Table
+```typescript
+interface Service {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  name: string;
+  description?: string;
+  duration: number; // In minutes
+  price: number;
+  color?: string; // For calendar display
+  preparationTime?: number; // Additional time needed before/after
+  professionalIds: string[]; // Which professionals offer this service
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Availability Table
+```typescript
+interface RegularAvailability {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  professionalId: string; // Foreign key to professionals
+  dayOfWeek: number; // 0-6 for Sunday to Saturday
+  startTime: string; // HH:MM format
+  endTime: string; // HH:MM format
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface AvailabilityException {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  professionalId: string; // Foreign key to professionals
+  date: Date;
+  startTime?: string; // If only modifying certain hours
+  endTime?: string;
+  isAvailable: boolean; // true for special availability, false for time off
+  reason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Clients Table
+```typescript
+interface Client {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  name: string;
+  email?: string;
+  phone: string; // For WhatsApp communications
+  birthDate?: Date;
+  notes?: string;
+  lastVisit?: Date;
+  whatsappOptIn: boolean; // Whether client has opted in for WhatsApp communications
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Appointments Table
+```typescript
+interface Appointment {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  clientId: string; // Foreign key to clients
+  professionalId: string; // Foreign key to professionals
+  serviceId: string; // Foreign key to services
+  startTime: Date; // Date and time
+  endTime: Date;
+  status: 'SCHEDULED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+  confirmationSent: boolean;
+  confirmationTime?: Date;
+  notes?: string;
+  paymentStatus?: 'PENDING' | 'PAID' | 'PARTIAL';
+  paymentAmount?: number;
+  createdBy: string; // User ID
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### WhatsApp Templates Table
+```typescript
+interface WhatsAppTemplate {
+  id: string; // UUID primary key
+  organizationId: string; // Tenant ID
+  name: string;
+  type: 'CONFIRMATION' | 'REMINDER' | 'CANCELLATION' | 'FEEDBACK' | 'MARKETING';
+  content: string; // Template in Portuguese with placeholders
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Database Queries & Repository Pattern
+
+#### Base Repository Structure
+```typescript
+abstract class BaseRepository<T> {
+  constructor(protected db: Pool, protected tableName: string) {}
+  
+  // Always include tenant filtering in base methods
+  async findById(id: string, tenantId: string): Promise<T | null> {
+    const result = await this.db.query(
+      `SELECT * FROM ${this.tableName} WHERE id = $1 AND organizationId = $2`,
+      [id, tenantId]
+    );
+    return result.rows[0] || null;
+  }
+  
+  async findAll(tenantId: string, filters?: Record<string, any>, pagination?: { page: number, pageSize: number }): Promise<{ data: T[], total: number }> {
+    // Implement with tenant filtering
+    // ...
+  }
+  
+  // Similar methods for create, update, delete
+  // All including tenant validation
+}
+```
+
+#### Transaction Management
+- Use PostgreSQL transactions for operations that modify multiple tables
+- Implement a transaction manager utility
+- Ensure proper rollback on errors
+
+## Service Layer
+
+### Service Pattern
+- Implement business logic in service classes
+- Services should be stateless and dependency-injected
+- Each domain area has its own service (ProfessionalService, AppointmentService, etc.)
+- Services handle permissions checks before operations
+
+```typescript
+class AppointmentService {
+  constructor(
+    private appointmentRepo: AppointmentRepository,
+    private availabilityService: AvailabilityService,
+    private clientRepo: ClientRepository,
+    private whatsappService: WhatsAppService,
+    private eventEmitter: EventEmitter
+  ) {}
+  
+  async createAppointment(tenantId: string, userId: string, appointmentData: CreateAppointmentDto): Promise<Appointment> {
+    // Validate professional availability
+    // Create appointment
+    // Send WhatsApp confirmation (in Portuguese)
+    // Emit events
+    // Return appointment
+  }
+  
+  // Other appointment-related methods
+}
+```
+
+### Data Transfer Objects (DTOs)
+- Use DTOs for input validation and type safety
+- Implement using Zod or class-validator
+- Separate DTOs for creation, updates, and responses
+
+```typescript
+// Example using Zod
+const CreateAppointmentSchema = z.object({
+  clientId: z.string().uuid(),
+  professionalId: z.string().uuid(),
+  serviceId: z.string().uuid(),
+  startTime: z.date(),
+  endTime: z.date(),
+  notes: z.string().optional(),
+});
+
+type CreateAppointmentDto = z.infer<typeof CreateAppointmentSchema>;
+```
+
+## WhatsApp Integration
+
+### WhatsApp API Client
+- Implement integration with WhatsApp Business API
+- Use templates for structured messages
+- Create service for sending and receiving messages
+
+```typescript
+class WhatsAppService {
+  constructor(
+    private templateRepo: WhatsAppTemplateRepository,
+    private clientRepo: ClientRepository,
+    private whatsappApiClient: WhatsAppApiClient
+  ) {}
+  
+  async sendAppointmentConfirmation(tenantId: string, appointmentId: string): Promise<void> {
+    // Get appointment details
+    // Get client's WhatsApp number
+    // Get template for confirmation
+    // Replace placeholders with appointment details
+    // Send message in Portuguese
+  }
+  
+  async handleIncomingMessage(tenantId: string, message: WhatsAppMessage): Promise<void> {
+    // Parse message intent using NLP
+    // Respond accordingly (appointment booking, reschedule, etc.)
+    // All communication in Portuguese
+  }
+}
+```
+
+### AI Natural Language Processing
+- Implement NLP for WhatsApp message understanding
+- Detect client intents (booking, rescheduling, cancellation)
+- Use sentiment analysis for feedback
+- Generate human-like responses in Portuguese
+
+## Background Jobs & Processing
+
+### Job Queue
+- Implement with Bull or similar queue system
+- Separate queues for different job types:
+  - WhatsApp message sending
+  - Appointment reminders
+  - Follow-up messages
+  - Report generation
+
+### Scheduled Tasks
+- Daily appointment confirmation reminders
+- Client birthday messages
+- Follow-up messages after appointments
+- Automated marketing campaigns
+
+## Event System
+
+### Event-Driven Architecture
+- Implement publish/subscribe pattern for system events
+- Events should include tenant context
+- Main events:
+  - `appointment.created`
+  - `appointment.confirmed`
+  - `appointment.cancelled`
+  - `appointment.completed`
+  - `client.registered`
+  - `whatsapp.messageReceived`
+
+```typescript
+interface AppEvent<T> {
+  type: string;
+  tenantId: string;
+  payload: T;
+  metadata: {
+    userId?: string;
+    timestamp: Date;
+  };
+}
+```
+
+## Calendar Engine
+
+### Availability Calculation
+- Implement complex availability calculation logic
+- Consider professional working hours, existing appointments, and exceptions
+- Generate available time slots for booking
+
+```typescript
+class AvailabilityService {
+  constructor(
+    private availabilityRepo: AvailabilityRepository,
+    private appointmentRepo: AppointmentRepository
+  ) {}
+  
+  async getAvailableSlots(
+    tenantId: string,
+    professionalId: string,
+    serviceId: string,
+    date: Date
+  ): Promise<Array<{ start: Date, end: Date }>> {
+    // Get professional's working hours for the day
+    // Get service duration
+    // Get existing appointments
+    // Calculate available slots
+    // Return array of available slots
+  }
+}
+```
+
+## Payment Integration
+
+### Payment Providers
+- Integrate with Brazilian payment providers (Mercado Pago, PagSeguro, etc.)
+- Implement webhook handlers for payment notifications
+- Support partial payments and payment links
+
+```typescript
+class PaymentService {
+  constructor(
+    private paymentGateway: PaymentGateway,
+    private appointmentRepo: AppointmentRepository
+  ) {}
+  
+  async createPaymentLink(tenantId: string, appointmentId: string): Promise<string> {
+    // Get appointment details
+    // Create payment in gateway
+    // Return payment link to be sent via WhatsApp
+  }
+  
+  async handlePaymentWebhook(payload: any): Promise<void> {
+    // Validate webhook signature
+    // Update appointment payment status
+    // Notify organization if needed
+  }
+}
+```
+
+## API Testing Structure
+
+### Test Categories
+- Unit tests for business logic
+- Integration tests for API endpoints
+- Repository tests with test database
+- WhatsApp communication tests with mocked API
+
+### Test Organization
+- Test files should mirror the structure of source files
+- Use fixtures for test data
+- Mock external dependencies
+- Include tenant context in all tests
+- Include Portuguese text validation for user-facing messages
+
+### Localization Testing
+- Verify that all user-facing messages are correctly returned in Portuguese
+- Test WhatsApp templates with various placeholders
+- Validate date/time formatting for Brazilian locale

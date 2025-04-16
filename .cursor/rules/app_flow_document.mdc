@@ -1,0 +1,426 @@
+---
+description: This document outlines the key user journeys and application workflows for the Appointment Scheduling SaaS platform. The application is designed for Brazilian businesses and customers, so all user interfaces and communications should be implemented in Portuguese (pt-BR).
+globs: 
+alwaysApply: true
+---
+
+## User Journeys & Application Workflows
+
+This document outlines the key user journeys and application workflows for the Appointment Scheduling SaaS platform. The application is designed for Brazilian businesses and customers, so all user interfaces and communications should be implemented in Portuguese (pt-BR).
+
+## Authentication Flow
+
+### Sign Up Process
+1. Organization admin visits landing page
+2. Admin selects "Sign Up" and enters organization details:
+   - Organization name
+   - Admin email
+   - Password
+   - Select subscription plan
+3. System creates new organization with tenant ID
+4. Admin receives welcome email with verification link (in Portuguese)
+5. First login prompts for additional organization details:
+   - Business type (medical office, beauty salon, tattoo studio, etc.)
+   - Operating hours
+   - Number of professionals
+   - WhatsApp Business information
+
+### Login Process
+1. User visits login page
+2. Enters email and password
+3. System validates credentials against tenant database
+4. If valid, generates JWT with user permissions and tenant ID
+5. Redirects to dashboard
+6. If invalid, shows error message (in Portuguese)
+
+### Password Recovery
+1. User clicks "Forgot Password"
+2. Enters email address
+3. System sends reset link if email exists
+4. User sets new password via secure link
+
+### User Invitation Flow
+1. Organization admin invites user via email
+2. System generates temporary access link
+3. New user sets password and completes profile
+4. System assigns predefined role (admin, receptionist, professional)
+
+## Dashboard Flow
+
+### Main Dashboard
+1. User logs in and lands on dashboard
+2. Dashboard displays (all in Portuguese):
+   - Appointment overview (today, current week, month)
+   - Available time slots
+   - Occupancy rate
+   - Waiting list clients
+   - Unconfirmed appointments
+   - Client birthday reminders
+
+### Analytics Dashboard
+1. User navigates to analytics section
+2. System presents filters for date range, professionals
+3. Displays visualizations:
+   - Appointment performance charts
+   - Time slot occupancy rates
+   - Revenue analysis
+   - Appointments by service type
+   - Most requested time slots
+
+## Professional Management Flow
+
+### Adding New Professionals
+1. User navigates to Professionals module
+2. Selects "Add New Professional"
+3. Completes professional form:
+   - Full name
+   - Specialty/services offered
+   - Professional email
+   - Phone
+   - Photo
+   - Working hours
+   - Default appointment/service duration
+4. Submits form
+5. System validates input
+6. Creates professional record in database
+7. Sends access invitation (optional)
+
+### Availability Management
+1. User selects professional
+2. Accesses "Manage Availability"
+3. Sets working hours:
+   - Days of the week
+   - Hours per day
+   - Lunch/break intervals
+   - Exceptions (days off, vacation)
+4. Saves settings
+5. System updates availability calendar
+
+### Professional Services
+1. User selects professional
+2. Accesses "Services Offered"
+3. Adds/edits services:
+   - Service name
+   - Duration
+   - Price
+   - Description
+   - Interval between services (preparation time)
+4. Saves changes
+5. System updates professional's service catalog
+
+## Appointment Management Flow
+
+### Creating Appointments (Organization Side)
+1. User navigates to Calendar module
+2. Selects date on calendar
+3. Chooses professional
+4. Clicks on available time slot or "New Appointment"
+5. Searches for existing client or adds new one
+6. Selects service(s)
+7. Sets date and time
+8. Adds notes if necessary
+9. Confirms appointment
+10. System:
+    - Creates appointment record
+    - Updates calendar
+    - Sends confirmation via WhatsApp to client (in Portuguese)
+    - Updates professional's availability
+
+### Rescheduling/Cancellation
+1. User locates appointment on calendar
+2. Selects rescheduling or cancellation option
+3. For rescheduling:
+   - Selects new date/time
+   - Indicates reason
+   - Confirms change
+4. For cancellation:
+   - Indicates reason
+   - Confirms cancellation
+5. System:
+   - Updates appointment record
+   - Notifies client via WhatsApp (in Portuguese)
+   - Frees up time slot on calendar
+
+### Appointment Confirmation
+1. System runs daily routine to check upcoming appointments
+2. Sends confirmation messages via WhatsApp 24h before (in Portuguese)
+3. Client confirms or requests rescheduling
+4. System updates appointment status
+5. Displays confirmations on dashboard
+
+### Waiting List
+1. User verifies that desired time slot is occupied
+2. Adds client to waiting list:
+   - Client name
+   - Contact
+   - Desired service
+   - Availability period
+2. System notifies when slot becomes available
+3. User contacts client to confirm interest
+4. Schedules new appointment
+
+## Client Management Flow
+
+### Adding New Clients
+1. User navigates to Clients module
+2. Selects "Add New Client"
+3. Completes client details:
+   - Full name
+   - Phone (WhatsApp)
+   - Email
+   - Date of birth
+   - Notes/preferences
+4. Saves client record
+5. System registers client in database
+
+### Client History View
+1. User searches for client
+2. Views client profile
+3. Accesses tabs for:
+   - Appointment history
+   - Service preferences
+   - Medical/aesthetic notes (depending on business type)
+   - Communication history
+
+### Client Communication
+1. User selects client
+2. Chooses "Send Message"
+3. Selects message template or writes custom message
+4. System sends via WhatsApp using AI for personalization (in Portuguese)
+5. Records communication in client history
+
+## WhatsApp Interface Flow (AI Chatbot)
+
+### Client First Contact
+1. Client initiates conversation with organization's WhatsApp number
+2. System identifies new contact
+3. AI bot introduces itself and offers options (in Portuguese):
+   - Schedule new appointment
+   - Check existing appointments
+   - Learn about services/professionals
+   - Talk to human assistant
+
+### WhatsApp Appointment Booking
+1. Client requests appointment
+2. AI bot asks (in Portuguese):
+   - Type of service desired
+   - Preferred professional (optional)
+   - Preferred date/time
+3. Bot shows available options
+4. Client selects option
+5. Bot confirms details and finalizes appointment
+6. System creates record and updates calendar
+
+### Reminders and Confirmations
+1. System sends automated reminders (in Portuguese):
+   - 24h before appointment
+   - Requesting confirmation
+2. Client confirms attendance or requests rescheduling
+3. Bot processes response and updates system
+
+### Post-service Feedback
+1. System sends message after service
+2. Requests service evaluation
+3. Asks if client wants to schedule next appointment
+4. Offers relevant promotions
+
+## Organization Management Flow
+
+### User Management
+1. Admin navigates to Organization module
+2. Selects "Users" section
+3. Views existing users
+4. Can add new users:
+   - Enter email and name
+   - Assign role/permissions
+   - Send invitation
+5. Can edit existing users:
+   - Change role
+   - Activate/deactivate account
+
+### Role & Permission Management
+1. Admin navigates to "Roles & Permissions"
+2. Views existing roles
+3. Can create new roles:
+   - Name role
+   - Select permissions
+   - Set description
+4. Can edit existing roles:
+   - Add/remove permissions
+   - Rename
+   - Set as default for new users
+
+### Subscription & Billing
+1. Admin navigates to "Subscription"
+2. Views current plan details
+3. Can upgrade/downgrade plan
+4. Access billing history
+5. Update payment method
+
+### WhatsApp Business Configuration
+1. Admin accesses "Communication Settings"
+2. Connects WhatsApp Business account:
+   - Enters phone number
+   - Follows verification process
+3. Customizes automated messages (in Portuguese)
+4. Configures AI communication tone and style
+5. Sets triggers for automated communication
+
+## Report Generation Flow
+
+### Standard Reports
+1. User navigates to Reports module
+2. Selects report type:
+   - Appointment summary
+   - Occupancy rate
+   - Professional performance
+   - Client service history
+3. Sets parameters (date range, professionals, etc.)
+4. Generates report
+5. Views on-screen or exports (PDF, Excel)
+
+### Custom Reports
+1. User selects "Custom Report"
+2. Selects data fields to include
+3. Sets filters and grouping options
+4. Previews report
+5. Saves report configuration for future use
+6. Exports if needed
+
+## Calendar View Flow
+
+### Weekly View
+1. User accesses calendar
+2. Selects weekly view
+3. Sees all appointments for the week
+4. Can filter by professional
+5. Identifies busy/available time slots
+6. Clicks on time slot to view appointment details
+
+### Monthly View
+1. User selects monthly view
+2. Sees appointment summary by day
+3. Identifies busiest days
+4. Clicks on day to see details
+
+### Timeline View
+1. User selects timeline view
+2. Sees appointments by time in linear format
+3. Can view multiple professionals simultaneously
+4. Drags appointments to reschedule
+5. Visualizes service duration
+
+## Payment Integration Flow
+
+### Payment Gateway Configuration
+1. Admin accesses "Payment Settings"
+2. Selects gateway (Mercado Pago, PagSeguro, etc.)
+3. Enters account credentials
+4. Configures fee options and transfers
+5. Activates integration
+
+### Advance Payment
+1. During appointment booking, user selects "Advance Payment"
+2. System generates payment link
+3. Sends to client via WhatsApp
+4. Client makes payment
+5. System confirms payment and updates status
+
+### Financial History
+1. User accesses financial module
+2. Views received payments
+3. Filters by period, service, professional
+4. Generates financial reports
+5. Exports for accounting integration
+
+## System Notifications Flow
+
+### Alert Types
+- Upcoming appointment notifications
+- New WhatsApp appointments
+- Cancellations or rescheduling
+- Waiting list clients
+- System updates
+
+### Notification Delivery
+1. System generates notification
+2. Stores in notification center
+3. Displays count in UI header
+4. Delivers via selected channels:
+   - In-app notification
+   - Email
+   - Dashboard alerts
+
+## Error Handling Flow
+
+### Validation Errors
+1. User submits form with invalid data
+2. System validates input
+3. Displays specific error messages next to fields (in Portuguese)
+4. Preserves valid input data
+5. User corrects errors and resubmits
+
+### System Errors
+1. Application encounters error
+2. Logs detailed error for debugging
+3. Shows user-friendly message (in Portuguese)
+4. Provides recovery options where possible
+
+## Mobile-Specific Flows
+
+### Mobile Appointment Management
+1. User accesses app via mobile device
+2. Views calendar optimized for mobile
+3. Adds appointments with simplified interface
+4. Syncs with central database
+
+### On-the-go Client Communication
+1. Professional or receptionist accesses mobile app
+2. Views delays or emergencies
+3. Communicates directly with upcoming clients
+4. Updates service status in real-time
+
+## Landing Page and Marketing Flow
+
+### Customized Landing Page
+1. Organization configures customized landing page
+2. Defines:
+   - Colors and logo
+   - Service descriptions
+   - Professional photos
+   - Client testimonials
+3. Activates public page with custom link
+
+### Marketing Campaigns
+1. Organization creates campaign in marketing module
+2. Selects:
+   - Client segment
+   - Service type to promote
+   - Custom message
+3. System sends communication via WhatsApp (in Portuguese)
+4. Monitors conversion results
+
+## Onboarding Flow
+
+### Initial Setup Wizard
+1. New admin completes registration
+2. System starts setup wizard:
+   - Organization profile configuration
+   - Adding first professionals
+   - Setting up offered services
+   - WhatsApp Business connection
+   - Automated message customization
+3. Presents guided tour of platform
+4. Offers checklist to complete setup
+
+### Training and Support
+1. System offers training materials (in Portuguese):
+   - Tutorial videos
+   - Documentation
+   - Common use examples
+2. Provides access to support:
+   - Live chat
+   - Knowledge base
+   - Training session scheduling
+
+This document serves as the foundation for developing the Appointment Scheduling SaaS platform, focused on the Brazilian market and with native WhatsApp integration using AI to humanize client communication.
