@@ -2,36 +2,36 @@
 description: 
 globs: 
 alwaysApply: true
-app_language: pt-BR
 ---
 # Backend Structure Document
 
 ## API Architecture
 
 ### RESTful API Structure
-- Implement a RESTful API using Express.js with TypeScript
-- Organize endpoints by resource domains: `/api/v1/[resource]`
+- Implement a RESTful API using NestJS with TypeScript
+- Organize endpoints by resource domains using NestJS modules: `/api/v1/[resource]`
 - Main resource domains: `organizations`, `users`, `professionals`, `services`, `clients`, `appointments`, `availability`
 - Include tenant identification in all routes except public and authentication endpoints
 - All user-facing messages returned by the API should be in Portuguese (pt-BR)
 
 ### Multi-Tenant Design
-- Implement tenant isolation through middleware
+- Implement tenant isolation through NestJS guards and interceptors
 - All database queries must include tenant filters
 - Store `tenantId` (organizationId) in JWT payload
 - Apply tenant filtering at the repository layer
-- Implement tenant middleware to validate requests
+- Implement tenant guard to validate requests
 
 ### Authentication & Authorization
-- JWT-based authentication with refresh token rotation
-- Role-based access control (RBAC) with granular permissions
+- JWT-based authentication with refresh token rotation using `@nestjs/jwt` and `@nestjs/passport`
+- Role-based access control (RBAC) with granular permissions using NestJS guards
 - Permission structure: `[action]:[resource]` (e.g., `read:appointments`, `create:professionals`)
 - Support for inviting users with predefined roles (admin, receptionist, professional)
 - Secure password handling with bcrypt and proper salt rounds
 
 ### API Response Format
 ```typescript
-interface ApiResponse<T> {
+// src/common/interfaces/api-response.interface.ts
+export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: {
@@ -48,14 +48,63 @@ interface ApiResponse<T> {
     }
   }
 }
+
+// src/common/interceptors/transform.interceptor.ts
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+@Injectable()
+export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+    return next.handle().pipe(
+      map(data => ({
+        success: true,
+        data,
+        meta: {
+          timestamp: new Date().toISOString(),
+        },
+      })),
+    );
+  }
+}
 ```
 
 ### Error Handling
-- Implement centralized error handling middleware with Portuguese error messages
+- Implement centralized error handling using NestJS exception filters
 - Use custom error classes extending from a base AppError
 - Include status codes, error codes, and user-friendly messages in Portuguese
 - Log detailed errors but return sanitized responses to clients
-- Handle validation errors separately with field-specific messages
+- Handle validation errors using class-validator
+
+```typescript
+// src/common/filters/http-exception.filter.ts
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common';
+import { Request, Response } from 'express';
+
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+    const status = exception.getStatus();
+
+    response.status(status).json({
+      success: false,
+      error: {
+        code: exception.name,
+        message: exception.message,
+        details: exception.getResponse(),
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      },
+    });
+  }
+}
+```
 
 ## Database Design
 
@@ -71,389 +120,508 @@ interface ApiResponse<T> {
 - `appointments`: Appointment records
 - `whatsapp_templates`: Templates for WhatsApp communication
 
-### Example Schema Design
+### Example Schema Design with TypeORM
 
-#### Organizations Table
+#### Organizations Entity
 ```typescript
-interface Organization {
-  id: string; // UUID primary key
+// src/modules/organizations/entities/organization.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Professional } from '../../professionals/entities/professional.entity';
+
+@Entity('organizations')
+export class Organization {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
   name: string;
-  planId: string; // Foreign key to plans
-  businessType: 'MEDICAL' | 'BEAUTY' | 'TATTOO' | 'OTHER';
-  address?: string;
-  phone?: string;
+
+  @Column()
+  planId: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['MEDICAL', 'BEAUTY', 'TATTOO', 'OTHER'],
+  })
+  businessType: string;
+
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column()
   email: string;
-  logo?: string;
-  whatsappBusinessId?: string; // For WhatsApp integration
-  settings: Record<string, any>; // JSON field for org settings including WhatsApp settings
+
+  @Column({ nullable: true })
+  logo: string;
+
+  @Column({ nullable: true })
+  whatsappBusinessId: string;
+
+  @Column('jsonb', { nullable: true })
+  settings: Record<string, any>;
+
+  @Column({ default: true })
   active: boolean;
+
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => User, user => user.organization)
+  users: User[];
+
+  @OneToMany(() => Professional, professional => professional.organization)
+  professionals: Professional[];
 }
 ```
 
-#### Users Table
+#### Users Entity
 ```typescript
-interface User {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID, foreign key to organizations
+// src/modules/users/entities/user.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
+import { Role } from '../../roles/entities/role.entity';
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  organizationId: string;
+
+  @Column()
   email: string;
+
+  @Column()
   passwordHash: string;
+
+  @Column()
   firstName: string;
+
+  @Column()
   lastName: string;
-  roleId: string; // Foreign key to roles
-  professionalId?: string; // If user is also a professional
+
+  @Column()
+  roleId: string;
+
+  @Column({ nullable: true })
+  professionalId: string;
+
+  @Column({ default: true })
   active: boolean;
-  lastLogin?: Date;
+
+  @Column({ nullable: true })
+  lastLogin: Date;
+
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Organization, organization => organization.users)
+  @JoinColumn({ name: 'organizationId' })
+  organization: Organization;
+
+  @ManyToOne(() => Role)
+  @JoinColumn({ name: 'roleId' })
+  role: Role;
 }
 ```
 
-#### Professionals Table
+### Repository Pattern with TypeORM
+
 ```typescript
-interface Professional {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  userId?: string; // Optional link to user account
-  name: string;
-  specialty?: string;
-  email?: string;
-  phone?: string;
-  bio?: string;
-  photo?: string;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
+// src/common/repositories/base.repository.ts
+import { Repository, FindOptionsWhere } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
-#### Services Table
-```typescript
-interface Service {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  name: string;
-  description?: string;
-  duration: number; // In minutes
-  price: number;
-  color?: string; // For calendar display
-  preparationTime?: number; // Additional time needed before/after
-  professionalIds: string[]; // Which professionals offer this service
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
+@Injectable()
+export abstract class BaseRepository<T> {
+  constructor(protected readonly repository: Repository<T>) {}
 
-#### Availability Table
-```typescript
-interface RegularAvailability {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  professionalId: string; // Foreign key to professionals
-  dayOfWeek: number; // 0-6 for Sunday to Saturday
-  startTime: string; // HH:MM format
-  endTime: string; // HH:MM format
-  isAvailable: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface AvailabilityException {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  professionalId: string; // Foreign key to professionals
-  date: Date;
-  startTime?: string; // If only modifying certain hours
-  endTime?: string;
-  isAvailable: boolean; // true for special availability, false for time off
-  reason?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-#### Clients Table
-```typescript
-interface Client {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  name: string;
-  email?: string;
-  phone: string; // For WhatsApp communications
-  birthDate?: Date;
-  notes?: string;
-  lastVisit?: Date;
-  whatsappOptIn: boolean; // Whether client has opted in for WhatsApp communications
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-#### Appointments Table
-```typescript
-interface Appointment {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  clientId: string; // Foreign key to clients
-  professionalId: string; // Foreign key to professionals
-  serviceId: string; // Foreign key to services
-  startTime: Date; // Date and time
-  endTime: Date;
-  status: 'SCHEDULED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
-  confirmationSent: boolean;
-  confirmationTime?: Date;
-  notes?: string;
-  paymentStatus?: 'PENDING' | 'PAID' | 'PARTIAL';
-  paymentAmount?: number;
-  createdBy: string; // User ID
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-#### WhatsApp Templates Table
-```typescript
-interface WhatsAppTemplate {
-  id: string; // UUID primary key
-  organizationId: string; // Tenant ID
-  name: string;
-  type: 'CONFIRMATION' | 'REMINDER' | 'CANCELLATION' | 'FEEDBACK' | 'MARKETING';
-  content: string; // Template in Portuguese with placeholders
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-### Database Queries & Repository Pattern
-
-#### Base Repository Structure
-```typescript
-abstract class BaseRepository<T> {
-  constructor(protected db: Pool, protected tableName: string) {}
-  
-  // Always include tenant filtering in base methods
   async findById(id: string, tenantId: string): Promise<T | null> {
-    const result = await this.db.query(
-      `SELECT * FROM ${this.tableName} WHERE id = $1 AND organizationId = $2`,
-      [id, tenantId]
-    );
-    return result.rows[0] || null;
+    return this.repository.findOne({
+      where: { id, organizationId: tenantId } as FindOptionsWhere<T>,
+    });
   }
-  
-  async findAll(tenantId: string, filters?: Record<string, any>, pagination?: { page: number, pageSize: number }): Promise<{ data: T[], total: number }> {
-    // Implement with tenant filtering
-    // ...
+
+  async findAll(
+    tenantId: string,
+    filters?: FindOptionsWhere<T>,
+    pagination?: { page: number; pageSize: number },
+  ): Promise<{ data: T[]; total: number }> {
+    const [data, total] = await this.repository.findAndCount({
+      where: { organizationId: tenantId, ...filters } as FindOptionsWhere<T>,
+      skip: pagination ? (pagination.page - 1) * pagination.pageSize : 0,
+      take: pagination?.pageSize,
+    });
+
+    return { data, total };
   }
-  
-  // Similar methods for create, update, delete
-  // All including tenant validation
 }
 ```
-
-#### Transaction Management
-- Use PostgreSQL transactions for operations that modify multiple tables
-- Implement a transaction manager utility
-- Ensure proper rollback on errors
 
 ## Service Layer
 
-### Service Pattern
-- Implement business logic in service classes
-- Services should be stateless and dependency-injected
+### Service Pattern with NestJS
+- Implement business logic in service classes using NestJS dependency injection
+- Services should be stateless and properly decorated with `@Injectable()`
 - Each domain area has its own service (ProfessionalService, AppointmentService, etc.)
 - Services handle permissions checks before operations
 
 ```typescript
-class AppointmentService {
+// src/modules/appointments/services/appointment.service.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Appointment } from '../entities/appointment.entity';
+import { CreateAppointmentDto } from '../dto/create-appointment.dto';
+import { AvailabilityService } from '../../availability/services/availability.service';
+import { WhatsAppService } from '../../whatsapp/services/whatsapp.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+@Injectable()
+export class AppointmentService {
   constructor(
-    private appointmentRepo: AppointmentRepository,
+    @InjectRepository(Appointment)
+    private appointmentRepository: Repository<Appointment>,
     private availabilityService: AvailabilityService,
-    private clientRepo: ClientRepository,
     private whatsappService: WhatsAppService,
-    private eventEmitter: EventEmitter
+    private eventEmitter: EventEmitter2,
   ) {}
-  
-  async createAppointment(tenantId: string, userId: string, appointmentData: CreateAppointmentDto): Promise<Appointment> {
+
+  async createAppointment(
+    tenantId: string,
+    userId: string,
+    appointmentData: CreateAppointmentDto,
+  ): Promise<Appointment> {
     // Validate professional availability
+    const isAvailable = await this.availabilityService.checkAvailability(
+      tenantId,
+      appointmentData.professionalId,
+      appointmentData.startTime,
+      appointmentData.endTime,
+    );
+
+    if (!isAvailable) {
+      throw new UnauthorizedException('Professional is not available at this time');
+    }
+
     // Create appointment
-    // Send WhatsApp confirmation (in Portuguese)
-    // Emit events
-    // Return appointment
+    const appointment = this.appointmentRepository.create({
+      ...appointmentData,
+      organizationId: tenantId,
+      createdBy: userId,
+    });
+
+    const savedAppointment = await this.appointmentRepository.save(appointment);
+
+    // Send WhatsApp confirmation
+    await this.whatsappService.sendAppointmentConfirmation(
+      tenantId,
+      savedAppointment.id,
+    );
+
+    // Emit event
+    this.eventEmitter.emit('appointment.created', {
+      tenantId,
+      payload: savedAppointment,
+      metadata: {
+        userId,
+        timestamp: new Date(),
+      },
+    });
+
+    return savedAppointment;
   }
-  
-  // Other appointment-related methods
 }
 ```
 
 ### Data Transfer Objects (DTOs)
-- Use DTOs for input validation and type safety
-- Implement using Zod or class-validator
+- Use DTOs with class-validator for input validation
+- Implement using NestJS decorators
 - Separate DTOs for creation, updates, and responses
 
 ```typescript
-// Example using Zod
-const CreateAppointmentSchema = z.object({
-  clientId: z.string().uuid(),
-  professionalId: z.string().uuid(),
-  serviceId: z.string().uuid(),
-  startTime: z.date(),
-  endTime: z.date(),
-  notes: z.string().optional(),
-});
+// src/modules/appointments/dto/create-appointment.dto.ts
+import { IsString, IsUUID, IsDate, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-type CreateAppointmentDto = z.infer<typeof CreateAppointmentSchema>;
+export class CreateAppointmentDto {
+  @ApiProperty()
+  @IsUUID()
+  clientId: string;
+
+  @ApiProperty()
+  @IsUUID()
+  professionalId: string;
+
+  @ApiProperty()
+  @IsUUID()
+  serviceId: string;
+
+  @ApiProperty()
+  @IsDate()
+  startTime: Date;
+
+  @ApiProperty()
+  @IsDate()
+  endTime: Date;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  notes?: string;
+}
 ```
 
 ## WhatsApp Integration
 
-### WhatsApp API Client
-- Implement integration with WhatsApp Business API
+### WhatsApp API Client with NestJS
+- Implement integration with WhatsApp Business API using NestJS modules
 - Use templates for structured messages
 - Create service for sending and receiving messages
 
 ```typescript
-class WhatsAppService {
+// src/modules/whatsapp/whatsapp.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { WhatsAppTemplate } from './entities/whatsapp-template.entity';
+import { WhatsAppService } from './services/whatsapp.service';
+import { WhatsAppController } from './controllers/whatsapp.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([WhatsAppTemplate])],
+  controllers: [WhatsAppController],
+  providers: [WhatsAppService],
+  exports: [WhatsAppService],
+})
+export class WhatsAppModule {}
+
+// src/modules/whatsapp/services/whatsapp.service.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { WhatsAppTemplate } from '../entities/whatsapp-template.entity';
+import { WhatsAppApiClient } from '../clients/whatsapp-api.client';
+
+@Injectable()
+export class WhatsAppService {
   constructor(
-    private templateRepo: WhatsAppTemplateRepository,
-    private clientRepo: ClientRepository,
-    private whatsappApiClient: WhatsAppApiClient
+    @InjectRepository(WhatsAppTemplate)
+    private templateRepository: Repository<WhatsAppTemplate>,
+    private whatsappApiClient: WhatsAppApiClient,
   ) {}
-  
-  async sendAppointmentConfirmation(tenantId: string, appointmentId: string): Promise<void> {
-    // Get appointment details
-    // Get client's WhatsApp number
-    // Get template for confirmation
-    // Replace placeholders with appointment details
-    // Send message in Portuguese
-  }
-  
-  async handleIncomingMessage(tenantId: string, message: WhatsAppMessage): Promise<void> {
-    // Parse message intent using NLP
-    // Respond accordingly (appointment booking, reschedule, etc.)
-    // All communication in Portuguese
+
+  async sendAppointmentConfirmation(
+    tenantId: string,
+    appointmentId: string,
+  ): Promise<void> {
+    const template = await this.templateRepository.findOne({
+      where: {
+        organizationId: tenantId,
+        type: 'CONFIRMATION',
+        active: true,
+      },
+    });
+
+    if (!template) {
+      throw new Error('No active confirmation template found');
+    }
+
+    // Get appointment details and client info
+    // Replace placeholders in template
+    // Send message via WhatsApp API
   }
 }
 ```
 
-### AI Natural Language Processing
-- Implement NLP for WhatsApp message understanding
-- Detect client intents (booking, rescheduling, cancellation)
-- Use sentiment analysis for feedback
-- Generate human-like responses in Portuguese
-
 ## Background Jobs & Processing
 
-### Job Queue
-- Implement with Bull or similar queue system
-- Separate queues for different job types:
-  - WhatsApp message sending
-  - Appointment reminders
-  - Follow-up messages
-  - Report generation
+### Job Queue with Bull
+- Implement with Bull using NestJS BullModule
+- Separate queues for different job types
+- Configure job processors and listeners
 
-### Scheduled Tasks
-- Daily appointment confirmation reminders
-- Client birthday messages
-- Follow-up messages after appointments
-- Automated marketing campaigns
+```typescript
+// src/modules/notifications/notifications.module.ts
+import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
+import { NotificationsProcessor } from './processors/notifications.processor';
+import { NotificationsService } from './services/notifications.service';
+
+@Module({
+  imports: [
+    BullModule.registerQueue({
+      name: 'notifications',
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+      },
+    }),
+  ],
+  providers: [NotificationsProcessor, NotificationsService],
+  exports: [NotificationsService],
+})
+export class NotificationsModule {}
+
+// src/modules/notifications/processors/notifications.processor.ts
+import { Processor, Process } from '@nestjs/bull';
+import { Job } from 'bull';
+
+@Processor('notifications')
+export class NotificationsProcessor {
+  @Process('appointment-reminder')
+  async handleAppointmentReminder(job: Job) {
+    const { appointmentId, tenantId } = job.data;
+    // Process appointment reminder
+  }
+}
+```
 
 ## Event System
 
-### Event-Driven Architecture
-- Implement publish/subscribe pattern for system events
+### Event-Driven Architecture with NestJS
+- Implement publish/subscribe pattern using NestJS EventEmitter2
 - Events should include tenant context
-- Main events:
-  - `appointment.created`
-  - `appointment.confirmed`
-  - `appointment.cancelled`
-  - `appointment.completed`
-  - `client.registered`
-  - `whatsapp.messageReceived`
+- Define event interfaces and handlers
 
 ```typescript
-interface AppEvent<T> {
-  type: string;
+// src/common/events/appointment.events.ts
+export enum AppointmentEventType {
+  CREATED = 'appointment.created',
+  CONFIRMED = 'appointment.confirmed',
+  CANCELLED = 'appointment.cancelled',
+  COMPLETED = 'appointment.completed',
+}
+
+export interface AppointmentEvent {
+  type: AppointmentEventType;
   tenantId: string;
-  payload: T;
+  payload: any;
   metadata: {
     userId?: string;
     timestamp: Date;
   };
 }
-```
 
-## Calendar Engine
+// src/modules/appointments/appointments.module.ts
+import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AppointmentsService } from './services/appointments.service';
+import { AppointmentsController } from './controllers/appointments.controller';
 
-### Availability Calculation
-- Implement complex availability calculation logic
-- Consider professional working hours, existing appointments, and exceptions
-- Generate available time slots for booking
-
-```typescript
-class AvailabilityService {
-  constructor(
-    private availabilityRepo: AvailabilityRepository,
-    private appointmentRepo: AppointmentRepository
-  ) {}
-  
-  async getAvailableSlots(
-    tenantId: string,
-    professionalId: string,
-    serviceId: string,
-    date: Date
-  ): Promise<Array<{ start: Date, end: Date }>> {
-    // Get professional's working hours for the day
-    // Get service duration
-    // Get existing appointments
-    // Calculate available slots
-    // Return array of available slots
-  }
-}
-```
-
-## Payment Integration
-
-### Payment Providers
-- Integrate with Brazilian payment providers (Mercado Pago, PagSeguro, etc.)
-- Implement webhook handlers for payment notifications
-- Support partial payments and payment links
-
-```typescript
-class PaymentService {
-  constructor(
-    private paymentGateway: PaymentGateway,
-    private appointmentRepo: AppointmentRepository
-  ) {}
-  
-  async createPaymentLink(tenantId: string, appointmentId: string): Promise<string> {
-    // Get appointment details
-    // Create payment in gateway
-    // Return payment link to be sent via WhatsApp
-  }
-  
-  async handlePaymentWebhook(payload: any): Promise<void> {
-    // Validate webhook signature
-    // Update appointment payment status
-    // Notify organization if needed
-  }
-}
+@Module({
+  imports: [EventEmitterModule.forRoot()],
+  controllers: [AppointmentsController],
+  providers: [AppointmentsService],
+})
+export class AppointmentsModule {}
 ```
 
 ## API Testing Structure
 
-### Test Categories
-- Unit tests for business logic
-- Integration tests for API endpoints
+### Test Categories with NestJS
+- Unit tests using Jest and NestJS testing utilities
+- Integration tests for API endpoints using `@nestjs/testing`
 - Repository tests with test database
 - WhatsApp communication tests with mocked API
+
+```typescript
+// src/modules/appointments/__tests__/appointments.service.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppointmentsService } from '../services/appointments.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Appointment } from '../entities/appointment.entity';
+import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+describe('AppointmentsService', () => {
+  let service: AppointmentsService;
+  let repository: Repository<Appointment>;
+  let eventEmitter: EventEmitter2;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AppointmentsService,
+        {
+          provide: getRepositoryToken(Appointment),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<AppointmentsService>(AppointmentsService);
+    repository = module.get<Repository<Appointment>>(getRepositoryToken(Appointment));
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('createAppointment', () => {
+    it('should create an appointment and emit event', async () => {
+      const appointmentData = {
+        clientId: 'client-1',
+        professionalId: 'professional-1',
+        serviceId: 'service-1',
+        startTime: new Date(),
+        endTime: new Date(),
+      };
+
+      const savedAppointment = {
+        id: 'appointment-1',
+        ...appointmentData,
+        organizationId: 'tenant-1',
+        createdBy: 'user-1',
+      };
+
+      jest.spyOn(repository, 'create').mockReturnValue(savedAppointment);
+      jest.spyOn(repository, 'save').mockResolvedValue(savedAppointment);
+
+      const result = await service.createAppointment(
+        'tenant-1',
+        'user-1',
+        appointmentData,
+      );
+
+      expect(result).toEqual(savedAppointment);
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'appointment.created',
+        expect.objectContaining({
+          tenantId: 'tenant-1',
+          payload: savedAppointment,
+        }),
+      );
+    });
+  });
+});
+```
 
 ### Test Organization
 - Test files should mirror the structure of source files
 - Use fixtures for test data
-- Mock external dependencies
+- Mock external dependencies using NestJS testing utilities
 - Include tenant context in all tests
 - Include Portuguese text validation for user-facing messages
 

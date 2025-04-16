@@ -1,21 +1,39 @@
-# Use Node.js LTS as the base image
-FROM node:18
+# Build stage
+FROM node:20-alpine AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
-# Copy the rest of the application code
+# Install dependencies
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-# Build the client application
+# Build the application
 RUN npm run build
 
-# Expose the application port
-EXPOSE 3000
+# Production stage
+FROM node:20-alpine AS production
 
-# Start the application
-CMD ["npm", "run", "start"]
+WORKDIR /app
+
+# Copy package files and install production dependencies
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy built application from builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.ts ./next.config.ts
+
+# Expose client port
+EXPOSE 3001
+
+# Start the server
+ENV NODE_ENV=production
+ENV PORT=3001
+CMD ["npm", "start"]

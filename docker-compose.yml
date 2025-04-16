@@ -1,16 +1,77 @@
+version: '3.8'
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: scheduler-db
     restart: always
     environment:
-      POSTGRES_USER: scheduler
-      POSTGRES_PASSWORD: scheduler
-      POSTGRES_DB: scheduler_db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-scheduler}
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: production
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - TYPEORM_CONNECTION=postgres
+      - TYPEORM_HOST=postgres
+      - TYPEORM_USERNAME=${POSTGRES_USER:-postgres}
+      - TYPEORM_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - TYPEORM_DATABASE=${POSTGRES_DB:-scheduler}
+      - TYPEORM_PORT=5432
+      - TYPEORM_SYNCHRONIZE=false
+      - TYPEORM_LOGGING=error
+      - TYPEORM_ENTITIES=dist/entities/*.entity.js
+      - TYPEORM_MIGRATIONS=dist/migrations/*.js
+      - TYPEORM_MIGRATIONS_DIR=dist/migrations
+      - API_URL=http://localhost:3000
+      - CLIENT_URL=http://localhost:3001
+      - JWT_SECRET=${JWT_SECRET}
+      - ABACATE_PAY_SECRET_KEY=${ABACATE_PAY_SECRET_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: production
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - PORT=3001
+    depends_on:
+      - api
+    networks:
+      - app_network
 
 volumes:
-  postgres-data:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge

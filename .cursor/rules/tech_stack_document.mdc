@@ -22,18 +22,18 @@ alwaysApply: true
 
 ### Backend Technologies
 - **Runtime**: Node.js 20+
-- **Framework**: Express.js with TypeScript
+- **Framework**: NestJS 10+
 - **API Documentation**: Swagger/OpenAPI
 - **Authentication**: Passport.js with JWT strategy
-- **Validation**: Zod for schema validation
+- **Validation**: Class Validator and Class Transformer
 - **Testing**: Jest with Supertest
 - **Logging**: Winston or Pino
 - **Process Manager**: PM2 for production deployment
 
 ### Database
 - **Primary Database**: PostgreSQL 16+
-- **ORM/Query Builder**: Prisma 
-- **Migrations**: Managed through ORM
+- **ORM**: TypeORM 
+- **Migrations**: Managed through TypeORM
 - **Connection Pooling**: pgBouncer for production
 
 ### DevOps & Infrastructure
@@ -133,155 +133,168 @@ export const useUiStore = create<UiState>((set) => ({
 
 ### Backend Architecture
 
-#### Express.js Setup
+#### NestJS Setup
 ```typescript
-// src/index.ts
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import { errorHandler } from './middleware/errorHandler';
-import { apiRoutes } from './routes';
+// src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-const app = express();
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-// Middleware
-app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  // Global validation pipe
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true,
+  }));
 
-// Routes
-app.use('/api/v1', apiRoutes);
+  // Swagger documentation
+  const config = new DocumentBuilder()
+    .setTitle('Scheduler API')
+    .setDescription('The Scheduler API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
-// Error handling
-app.use(errorHandler);
+  // CORS configuration
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  });
 
-// Start server
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  await app.listen(process.env.PORT || 3001);
+}
+bootstrap();
 ```
 
 #### API Route Structure
 ```
 src/
-  routes/
-    index.ts                  # Route aggregation
-    auth.routes.ts            # Authentication routes
-    users.routes.ts           # User management
-    organizations.routes.ts   # Organization management
-    products.routes.ts        # Product management
-    inventory.routes.ts       # Inventory operations
-    sales.routes.ts           # Sales processing
-    clients.routes.ts         # Client management
-    reports.routes.ts         # Report generation
+  modules/
+    auth/                  # Authentication module
+    users/                 # User management module
+    organizations/         # Organization management module
+    products/             # Product management module
+    inventory/            # Inventory operations module
+    sales/                # Sales processing module
+    clients/              # Client management module
+    reports/              # Report generation module
 ```
 
 #### Controller Pattern
 ```typescript
-// src/controllers/product.controller.ts
-import { Request, Response, NextFunction } from 'express';
+// src/modules/products/controllers/product.controller.ts
+import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
-import { CreateProductSchema } from '../schemas/product.schema';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { GetProductsQueryDto } from '../dto/get-products-query.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
+@Controller('products')
+@UseGuards(JwtAuthGuard)
 export class ProductController {
-  constructor(private productService: ProductService) {}
+  constructor(private readonly productService: ProductService) {}
 
-  async createProduct(req: Request, res: Response, next: NextFunction) {
-    try {
-      const tenantId = req.user.organizationId;
-      const userId = req.user.id;
-      
-      // Validate request body
-      const validatedData = CreateProductSchema.parse(req.body);
-      
-      // Call service
-      const product = await this.productService.createProduct(
-        tenantId,
-        userId,
-        validatedData
-      );
-      
-      return res.status(201).json({ success: true, data: product });
-    } catch (error) {
-      next(error);
-    }
+  @Get()
+  async getProducts(@Query() query: GetProductsQueryDto) {
+    return this.productService.getProducts(query);
   }
-  
-  // Other controller methods...
+
+  @Post()
+  async createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productService.createProduct(createProductDto);
+  }
 }
 ```
 
 ### Database Configuration
 
-#### Prisma Schema Example
-```prisma
-// schema.prisma
-generator client {
-  provider = "prisma-client-js"
+#### TypeORM Entity Example
+```typescript
+// src/modules/organizations/entities/organization.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Product } from '../../products/entities/product.entity';
+
+@Entity('organizations')
+export class Organization {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  planId: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ nullable: true })
+  logo: string;
+
+  @Column('jsonb', { nullable: true })
+  settings: Record<string, any>;
+
+  @Column({ default: true })
+  active: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @OneToMany(() => User, user => user.organization)
+  users: User[];
+
+  @OneToMany(() => Product, product => product.organization)
+  products: Product[];
 }
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  planId    String
-  email     String   @unique
-  phone     String?
-  address   String?
-  logo      String?
-  settings  Json?
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  users     User[]
-  products  Product[]
-  inventory Inventory[]
-  clients   Client[]
-  sales     Sale[]
-
-  // Plan relation
-  plan      Plan     @relation(fields: [planId], references: [id])
-}
-
-model User {
-  id             String   @id @default(uuid())
-  organizationId String
-  email          String
-  passwordHash   String
-  firstName      String
-  lastName       String
-  roleId         String
-  active         Boolean  @default(true)
-  lastLogin      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  role           Role         @relation(fields: [roleId], references: [id])
-
-  // Composite unique to ensure email uniqueness within organization
-  @@unique([organizationId, email])
-}
-
-// Additional models...
 ```
 
-#### Database Migration Strategy
-- Use Prisma Migrate for schema migrations
-- Apply DB changes with CI/CD pipeline
-- Version control migration scripts
-- Include rollback procedures for critical migrations
+#### TypeORM Module Configuration
+```typescript
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: configService.get('NODE_ENV') === 'development',
+        logging: configService.get('NODE_ENV') === 'development',
+      }),
+      inject: [ConfigService],
+    }),
+    // ... other modules
+  ],
+})
+export class AppModule {}
+```
 
 ### Security Implementations
 

@@ -2,7 +2,6 @@
 description: 
 globs: 
 alwaysApply: true
-app_language: pt-BR
 ---
 
 ## 1. Overview
