@@ -1,11 +1,19 @@
 import api from '@/services/apiService';
 import { create } from 'zustand';
 
+export interface Client { 
+  identifier: string,
+  name: string,
+  phone: string,
+  email: string,
+}
+
 interface Appointment {
   id: string;
   clientId: string;
   startDate: string; // ISO 8601 format
   endDate: string;   // ISO 8601 format
+  client: Client
 }
 
 interface AppointmentState {

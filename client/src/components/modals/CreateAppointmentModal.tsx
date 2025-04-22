@@ -135,7 +135,7 @@ export default function CreateAppointmentModal({
             description: t("toasts.info.description"),
           });
         }
-      } catch (error) {
+      } catch {
         toast({
           title: t("toasts.error.title"),
           description: t("toasts.error.description"),
@@ -173,7 +173,7 @@ export default function CreateAppointmentModal({
           title: t("toasts.success.title"),
           description: t("toasts.success.description"),
         });
-      } catch (error) {
+      } catch {
         toast({
           title: t("toasts.error.title"),
           description: t("toasts.error.description"),
@@ -217,7 +217,7 @@ export default function CreateAppointmentModal({
         description: t("toasts.appointmentSuccess.description"),
       });
       onClose();
-    } catch (error) {
+    } catch {
       toast({
         title: t("toasts.error.title"),
         description: t("toasts.error.description"),

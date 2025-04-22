@@ -5,11 +5,10 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
-import { Calendar, Clock, User } from "lucide-react";
+import { Clock, User } from "lucide-react";
 
 interface EventActionsModalProps {
   isOpen: boolean;

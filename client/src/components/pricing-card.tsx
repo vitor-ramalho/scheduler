@@ -26,21 +26,17 @@ interface User {
 }
 
 interface PricingCardProps {
-  user: User | null;
   item: Plan;
   selectable?: boolean;
   selectedPlan?: Plan | null;
   onSelect?: (plan: Plan) => void;
-  onDeselect?: () => void;
 }
 
 export default function PricingCard({
-  user,
   item,
   selectable = false,
   selectedPlan,
   onSelect,
-  onDeselect,
 }: PricingCardProps) {
   const t = useTranslations("Pricing");
 

@@ -1,9 +1,10 @@
 import { useTranslations } from "next-intl";
 import Timeline from "./Timeline";
+import { IEvent } from "./CalendarPage";
 
 interface WeekViewProps {
   currentDate: Date;
-  events: any;
+  events: IEvent[];
 }
 
 const WeekView = ({ currentDate, events }: WeekViewProps) => {

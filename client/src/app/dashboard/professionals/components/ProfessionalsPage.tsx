@@ -2,19 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+
 import { toast } from "@/components/ui/use-toast";
 import { useTranslations } from "next-intl";
 import api from "@/services/apiService";
 import { useProfessionalStore } from "@/store/professionalStore";
-import { formatPhoneInput } from "@/utils/utils";
+
+import ProfessionalsModal from "./ProfessionalsModal";
+import List, { ColumnDef } from "@/components/list/List";
 
 export interface Professional {
   id: string;
@@ -28,78 +23,17 @@ export default function ProfessionalsPage() {
   const { professionals, fetchProfessionals } = useProfessionalStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProfessional, setCurrentProfessional] = useState<
-    Partial<Professional>
+    Professional
   >({
     id: "",
     name: "",
     email: "",
     phone: "",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchProfessionals();
   }, [fetchProfessionals]);
-
-  const validateProfessional = () => {
-    const newErrors: Record<string, string> = {};
-    if (!currentProfessional.name) newErrors.name = t("errors.name");
-    if (
-      currentProfessional.email &&
-      !/\S+@\S+\.\S+/.test(currentProfessional.email)
-    )
-      newErrors.email = t("errors.email");
-    if (
-      currentProfessional.phone &&
-      !/^\+?\d{10,15}$/.test(currentProfessional.phone)
-    )
-      newErrors.phone = t("errors.phone");
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (field: keyof Professional, value: string) => {
-    setCurrentProfessional((prev) => ({
-      ...prev,
-      [field]: field === "phone" ? value.replace(/\D/g, "") : value,
-    }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleSave = async () => {
-    if (!validateProfessional()) return;
-
-    setLoading(true);
-    try {
-      if (currentProfessional.id) {
-        await api.put(
-          `/professionals/${currentProfessional.id}`,
-          currentProfessional
-        );
-        toast({
-          title: t("toasts.success.title"),
-          description: t("toasts.success.update"),
-        });
-      } else {
-        await api.post("/professionals", currentProfessional);
-        toast({
-          title: t("toasts.success.title"),
-          description: t("toasts.success.create"),
-        });
-      }
-      setIsModalOpen(false);
-      fetchProfessionals();
-    } catch (error) {
-      toast({
-        title: t("toasts.error.title"),
-        description: t("toasts.error.save"),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRemove = async (id: string) => {
     try {
@@ -109,7 +43,7 @@ export default function ProfessionalsPage() {
         description: t("toasts.success.remove"),
       });
       fetchProfessionals();
-    } catch (error) {
+    } catch {
       toast({
         title: t("toasts.error.title"),
         description: t("toasts.error.remove"),
@@ -117,6 +51,62 @@ export default function ProfessionalsPage() {
       });
     }
   };
+
+
+  // Handle row click to view professional details
+  const handleRowClick = (professional: Professional) => {
+    console.log("Viewing professional details:", professional);
+    // Navigate to professional details or show details modal
+    // history.push(`/professionals/${professional.id}`);
+  };
+
+  const columns: ColumnDef<Professional>[] = [
+    {
+      id: "name",
+      header: t("table.name"),
+      accessorKey: "name"
+    },
+    {
+      id: "email",
+      header: t("table.email"),
+      cell: (row) => row.email || <span className="text-gray-400 italic">{t("table.noEmail")}</span>
+    },
+    {
+      id: "phone",
+      header: t("table.phone"),
+      cell: (row) => row.phone || <span className="text-gray-400 italic">{t("table.noPhone")}</span>
+    },
+    {
+      id: "actions",
+      header: t("table.actions"),
+      cell: (row) => (
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentProfessional(row);
+              setIsModalOpen(true);
+            }}
+          >
+            {t("buttons.edit")}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click
+              handleRemove(row.id);
+            }}
+          >
+            {t("buttons.remove")}
+          </Button>
+        </div>
+      )
+    },
+  ];
+
 
   return (
     <div className="p-6 flex-1 overflow-auto">
@@ -137,114 +127,23 @@ export default function ProfessionalsPage() {
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 border-b text-left">
-                {t("table.name")}
-              </th>
-              <th className="px-4 py-2 border-b text-left">
-                {t("table.email")}
-              </th>
-              <th className="px-4 py-2 border-b text-left">
-                {t("table.phone")}
-              </th>
-              <th className="px-4 py-2 border-b text-left">
-                {t("table.actions")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {professionals.map((professional) => (
-              <tr key={professional.id} className="hover:bg-gray-100">
-                <td className="px-4 py-2 border-b">{professional.name}</td>
-                <td className="px-4 py-2 border-b">
-                  {professional.email || t("table.noEmail")}
-                </td>
-                <td className="px-4 py-2 border-b">
-                  {professional.phone || t("table.noPhone")}
-                </td>
-                <td className="px-4 py-2 border-b">
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setCurrentProfessional(professional);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      {t("buttons.edit")}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleRemove(professional.id)}
-                    >
-                      {t("buttons.remove")}
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      <div className="bg-white rounded-lg shadow">
+        <List<Professional>
+          columns={columns}
+          data={professionals}
+          pageSize={10}
+          onRowClick={handleRowClick}
+          tableProps={{ className: "border-collapse" }}
+        />
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {currentProfessional.id
-                ? t("modal.editTitle")
-                : t("modal.createTitle")}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Input
-                placeholder={t("placeholders.name")}
-                value={currentProfessional.name || ""}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                disabled={loading}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name}</p>
-              )}
-            </div>
-            <div>
-              <Input
-                placeholder={t("placeholders.email")}
-                value={currentProfessional.email || ""}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                disabled={loading}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
-              )}
-            </div>
-            <div>
-              <Input
-                placeholder={t("placeholders.phone")}
-                maxLength={15}
-                value={formatPhoneInput(currentProfessional.phone) || ""}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                disabled={loading}
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm">{errors.phone}</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-              {t("buttons.cancel")}
-            </Button>
-            <Button onClick={handleSave} disabled={loading}>
-              {t("buttons.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProfessionalsModal
+        currentProfessional={currentProfessional}
+        setCurrentProfessional={setCurrentProfessional}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </div>
   );
 }

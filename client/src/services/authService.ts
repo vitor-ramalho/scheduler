@@ -20,17 +20,15 @@ export async function login(email: string, password: string) {
     const response = await api.post("/auth/login", { email, password });
     const { user, accessToken, refreshToken } = response.data;
 
-    // Update the state immediately
     useUserStore.getState().setUser(user, accessToken, refreshToken);
 
-    // Store tokens securely in local storage
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
 
     return user;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Login failed");
+  } catch {
+    throw new Error("Login failed");
   }
 }
 
@@ -44,11 +42,8 @@ export async function logout() {
       "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     document.cookie =
       "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-  } catch (error: any) {
-    console.error(
-      "Logout failed:",
-      error.response?.data?.message || error.message
-    );
+  } catch {
+    throw new Error("Logout failed");
   }
 }
 
@@ -69,11 +64,10 @@ export async function register(
     });
     const { user, accessToken, refreshToken } = response.data;
 
-    // Update the state immediately
     useUserStore.getState().setUser(user, accessToken, refreshToken);
 
     return { user, accessToken, refreshToken };
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Registration failed");
+  } catch {
+    throw new Error("Registration failed");
   }
 }

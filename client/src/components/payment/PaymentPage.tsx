@@ -9,11 +9,8 @@ interface PaymentPageProps {
   onCancel?: () => void;
 }
 
-export default function PaymentPage({ amount, onSuccess, onCancel }: PaymentPageProps) {
+export default function PaymentPage({ amount, onCancel }: PaymentPageProps) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  console.log(amount, 'amount');
 
   const handlePayment = async () => {
     setLoading(true);

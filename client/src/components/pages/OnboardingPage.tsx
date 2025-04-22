@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { formatCNPJ, validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
+import { validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
 import { useUserStore } from "@/store/userStore";
 import { updateCompany } from "@/services/onboardingService";
 import { usePlanStore } from "@/store/planStore";
@@ -58,13 +58,6 @@ export default function OnboardingPage() {
   const { plans, fetchPlans } = usePlanStore();
 
   console.log(plans, "plans");
-
-  const mockApiRequest = (endpoint: string, data: unknown) => {
-    return new Promise((resolve) => {
-      console.log(`Mock API Request to ${endpoint} with data:`, data);
-      setTimeout(resolve, 1000);
-    });
-  };
 
   const validateFields = () => {
     const newErrors: ValidationErrors = {
@@ -152,7 +145,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [fetchPlans]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -193,11 +186,10 @@ export default function OnboardingPage() {
           <button
             onClick={handleNext}
             disabled={loading}
-            className={`w-full py-2 rounded mt-6 ${
-              loading
-                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                : "bg-teal-600 text-white hover:bg-teal-700"
-            }`}
+            className={`w-full py-2 rounded mt-6 ${loading
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-teal-600 text-white hover:bg-teal-700"
+              }`}
           >
             {loading ? t("loading") : t("nextButton")}
           </button>

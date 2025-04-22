@@ -9,32 +9,55 @@ import { useProfessionalStore } from "@/store/professionalStore";
 import MonthView from "./MonthView";
 import Timeline from "./Timeline";
 import WeekView from "./WeekView";
+import ProfessionalsModal from "../../professionals/components/ProfessionalsModal";
+import { Professional } from "../../professionals/components/ProfessionalsPage";
+
+export interface IEvent {
+  id: string,
+  start: Date,
+  end: Date,
+  clientName: string,
+  color: string
+}
 
 const CalendarPage = () => {
   const t = useTranslations("CalendarPage");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState("month");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProfessional, setSelectedProfessional] = useState(null);
+  const [selectedProfessional, setSelectedProfessional] = useState<string>();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentProfessional, setCurrentProfessional] = useState<Professional>({
+    id: "",
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [isProfessionalModalOpen, setIsProfessionalModalOpen] = useState(false);
+  const [isProfessionalsLoading, setIsProfessionalsLoading] = useState(true);
 
-  const { appointments, loading, error, fetchAppointments } =
-    useAppointmentStore();
-
+  const { appointments, loading, error, fetchAppointments } = useAppointmentStore();
   const { professionals, fetchProfessionals } = useProfessionalStore();
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      setIsProfessionalsLoading(true);
       await fetchProfessionals();
+      setIsProfessionalsLoading(false);
     };
     fetchInitialData();
   }, [fetchProfessionals]);
 
   useEffect(() => {
-    if (professionals.length > 0 && !selectedProfessional) {
-      setSelectedProfessional(professionals[0].id);
+
+    if (!isProfessionalsLoading) {
+      if (professionals.length > 0 && !selectedProfessional) {
+        setSelectedProfessional(professionals[0].id);
+      } else if (professionals.length === 0) {
+        setIsProfessionalModalOpen(true);
+      }
     }
-  }, [professionals, selectedProfessional]);
+  }, [professionals, selectedProfessional, isProfessionalsLoading]);
 
   useEffect(() => {
     if (selectedProfessional) {
@@ -42,20 +65,16 @@ const CalendarPage = () => {
     }
   }, [selectedProfessional, fetchAppointments]);
 
-  const handleProfessionalChange = (event) => {
-    setSelectedProfessional(event.target.value);
-  };
-
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const selectProfessional = (professionalId) => {
+  const selectProfessional = (professionalId: string) => {
     setSelectedProfessional(professionalId);
     setIsDropdownOpen(false);
   };
 
-  const mapAppointmentsToEvents = () => {
+  const mapAppointmentsToEvents: () => IEvent[] = () => {
     return appointments.map((appointment) => {
       const start = new Date(appointment.startDate);
       const end = new Date(appointment.endDate);
@@ -76,7 +95,7 @@ const CalendarPage = () => {
   const events = mapAppointmentsToEvents();
 
   // Month navigation method
-  const navigate = (direction) => {
+  const navigate = (direction: number) => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
       if (view === "day") {
@@ -94,10 +113,6 @@ const CalendarPage = () => {
     if (loading) {
       return <div className="text-center p-4">{t("loading")}</div>;
     }
-
-    // if (professionals.length === 0) {
-    //   alert("Favor Cadastrar Profissional");
-    // }
 
     if (error) {
       return (
@@ -142,18 +157,18 @@ const CalendarPage = () => {
           <h2 className="text-xl font-bold">
             {t(
               "months." +
-                currentDate
-                  .toLocaleDateString("en-US", { month: "long" })
-                  .toLowerCase()
+              currentDate
+                .toLocaleDateString("en-US", { month: "long" })
+                .toLowerCase()
             )}{" "}
             {currentDate.getFullYear()}
             <span className="text-gray-500 text-lg ml-2">
               (
               {t(
                 "weekdays." +
-                  currentDate
-                    .toLocaleDateString("en-US", { weekday: "short" })
-                    .toLowerCase()
+                currentDate
+                  .toLocaleDateString("en-US", { weekday: "short" })
+                  .toLowerCase()
               )}
               , {currentDate.getDate()})
             </span>
@@ -174,10 +189,9 @@ const CalendarPage = () => {
               key={viewOption}
               className={`
                 px-4 py-2 rounded capitalize 
-                ${
-                  view === viewOption
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-200 text-gray-700"
+                ${view === viewOption
+                  ? "bg-teal-600 text-white"
+                  : "bg-gray-200 text-gray-700"
                 }
               `}
               onClick={() => setView(viewOption)}
@@ -211,7 +225,7 @@ const CalendarPage = () => {
           <span>
             {selectedProfessional
               ? professionals.find((p) => p.id === selectedProfessional)
-                  ?.name || t("placeholders.selectProfessional")
+                ?.name || t("placeholders.selectProfessional")
               : t("placeholders.selectProfessional")}
           </span>
           <ChevronDown className="w-4 h-4" />
@@ -232,12 +246,25 @@ const CalendarPage = () => {
       </div>
 
       {/* Calendar View */}
-      <div className="flex-grow overflow-auto w-full">{renderContent()}</div>
+      <div className="flex-grow overflow-auto w-full">
+        {isProfessionalsLoading ? (
+          <div className="text-center p-4">{t("loading")}</div>
+        ) : (
+          renderContent()
+        )}
+      </div>
 
       {/* Create Appointment Modal */}
       <CreateAppointmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <ProfessionalsModal
+        currentProfessional={currentProfessional}
+        setCurrentProfessional={setCurrentProfessional}
+        isModalOpen={isProfessionalModalOpen}
+        setIsModalOpen={setIsProfessionalModalOpen}
       />
     </div>
   );

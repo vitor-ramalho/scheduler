@@ -6,6 +6,7 @@ import { login } from "@/services/authService";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { toast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -35,10 +36,10 @@ export default function SignIn() {
         description: t("toasts.success.description"),
       });
       setLogin(user.accessToken); // Redirect to dashboard
-    } catch (err: any) {
+    } catch {
       toast({
         title: t("toasts.error.title"),
-        description: err.message || t("toasts.error.description"),
+        description: t("toasts.error.description"),
         variant: "destructive",
       });
     } finally {
@@ -54,7 +55,7 @@ export default function SignIn() {
         </h2>
         <div className="space-y-4">
           <div>
-            <input
+            <Input
               type="email"
               placeholder="Email"
               value={email}
@@ -65,7 +66,7 @@ export default function SignIn() {
             {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
           <div>
-            <input
+            <Input
               type="password"
               placeholder={t("password")}
               value={password}

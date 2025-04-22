@@ -4,15 +4,10 @@ import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
 import PricingCard from "@/components/pricing-card";
 import Footer from "@/components/footer";
-// import { createClient } from "../../supabase/server";
 import {
   ArrowUpRight,
-  Calendar,
   ClipboardCheck,
-  Clock,
   Bell,
-  Shield,
-  Users,
   CalendarClock,
   UserRound,
 } from "lucide-react";
@@ -26,7 +21,7 @@ export default function Home() {
   const t = useTranslations("HomePage");
   useEffect(() => {
     fetchPlans();
-  }, []);
+  }, [fetchPlans]);
 
   console.log(plans, "plans");
   return (

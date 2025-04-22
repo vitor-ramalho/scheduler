@@ -1,11 +1,13 @@
 import { getDaysInMonth, getFirstDayOfMonth } from "@/utils/dateUtils";
 import { useTranslations } from "next-intl";
+import { Dispatch, SetStateAction } from "react";
+import { IEvent } from "./CalendarPage";
 
 interface MonthViewProps {
   currentDate: Date;
-  events: any;
-  setView: () => void;
-  setCurrentDate: () => void;
+  events: IEvent[];
+  setView: Dispatch<SetStateAction<string>>
+  setCurrentDate: Dispatch<SetStateAction<Date>>
 }
 
 const MonthView = ({

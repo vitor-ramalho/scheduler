@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { register } from "@/services/authService";
 import { toast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 
 export default function SignUp() {
   const [firstName, setFirstName] = useState("");
@@ -42,10 +43,10 @@ export default function SignUp() {
         description: t("toasts.success.description"),
       });
       router.push("/onboarding");
-    } catch (error: any) {
+    } catch  {
       toast({
         title: t("toasts.error.title"),
-        description: error.message || t("toasts.error.description"),
+        description: t("toasts.error.description"),
         variant: "destructive",
       });
     } finally {
@@ -61,7 +62,7 @@ export default function SignUp() {
         </h2>
         <div className="space-y-4">
           <div>
-            <input
+            <Input
               type="text"
               placeholder={t("firstName")}
               value={firstName}
@@ -74,7 +75,7 @@ export default function SignUp() {
             )}
           </div>
           <div>
-            <input
+            <Input
               type="text"
               placeholder={t("lastName")}
               value={lastName}
@@ -87,7 +88,7 @@ export default function SignUp() {
             )}
           </div>
           <div>
-            <input
+            <Input
               type="text"
               placeholder={t("organizationName")}
               value={organizationName}
@@ -100,7 +101,7 @@ export default function SignUp() {
             )}
           </div>
           <div>
-            <input
+            <Input
               type="email"
               placeholder={t("email")}
               value={email}
@@ -111,7 +112,7 @@ export default function SignUp() {
             {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
           <div>
-            <input
+            <Input
               type="password"
               placeholder={t("password")}
               value={password}
