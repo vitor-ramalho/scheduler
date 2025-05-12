@@ -6,7 +6,7 @@ alwaysApply: true
 
 ## User Journeys & Application Workflows
 
-This document outlines the key user journeys and application workflows for the Appointment Scheduling SaaS platform. The application is designed for Brazilian businesses and customers, so all user interfaces and communications should be implemented in Portuguese (pt-BR).
+This document outlines the key user journeys and application workflows for the Appointment Scheduling SaaS platform. The application is designed for Brazilian businesses and customers, so there will be translate for all the content in order to match the customers need.
 
 ## Authentication Flow
 
@@ -45,17 +45,22 @@ This document outlines the key user journeys and application workflows for the A
 3. New user sets password and completes profile
 4. System assigns predefined role (admin, receptionist, professional)
 
-## Dashboard Flow
+## Calendar Flow
 
-### Main Dashboard
-1. User logs in and lands on dashboard
-2. Dashboard displays (all in Portuguese):
-   - Appointment overview (today, current week, month)
-   - Available time slots
-   - Occupancy rate
-   - Waiting list clients
-   - Unconfirmed appointments
-   - Client birthday reminders
+### Calendar Page
+1. User logs in and lands on the calendar in todays view
+2. Calendar displays (all in Portuguese):
+   - Professional Selection (on top of the calendar)
+   - Appointment overview - in tabs (today, current week, month)
+   - Button to create an appointment
+   - Occupied time slots
+
+### Appointment Creation
+1. User clicks the button to create an appointment
+2. Display an modal to type the client info and search for the client by the identifier (CPF) if exists
+3. If user exists, select the user, if not, create and select it then go to the next modal step to create the appointment
+
+## Dashboard Flow
 
 ### Analytics Dashboard
 1. User navigates to analytics section
@@ -66,6 +71,7 @@ This document outlines the key user journeys and application workflows for the A
    - Revenue analysis
    - Appointments by service type
    - Most requested time slots
+
 
 ## Professional Management Flow
 

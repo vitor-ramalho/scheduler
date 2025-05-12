@@ -30,12 +30,12 @@ export default function SignIn() {
     setLoading(true);
     setErrors({});
     try {
-      const user = await login(email, password);
+      await login(email, password);
       toast({
         title: t("toasts.success.title"),
         description: t("toasts.success.description"),
       });
-      setLogin(user.accessToken); // Redirect to dashboard
+      setLogin();
     } catch {
       toast({
         title: t("toasts.error.title"),
@@ -79,11 +79,10 @@ export default function SignIn() {
         </div>
         <button
           onClick={handleSignIn}
-          className={`w-full mt-4 py-2 rounded ${
-            loading
+          className={`w-full mt-4 py-2 rounded ${loading
               ? "bg-teal-400 cursor-not-allowed"
               : "bg-teal-600 hover:bg-teal-700 text-white"
-          }`}
+            }`}
           disabled={loading}
         >
           {loading ? t("loading") : t("signInButton")}

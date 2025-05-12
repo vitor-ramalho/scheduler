@@ -36,6 +36,10 @@
     }
   },
   "Navbar": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendário",
+    "clients": "Clientes",
+    "professionals": "Profissionais",
     "brand": "Agendador",
     "links": {
       "features": "Funcionalidades",
@@ -263,6 +267,39 @@
     "interval": {
       "monthly": "mensal",
       "yearly": "anual"
+    }
+  },
+  "EventActionsModal": {
+    "appointmentDetails": "Detalhes do agendamento",
+    "customer": "Cliente",
+    "reschedule": "Reagendar",
+    "editDetails": "Editar",
+    "cancelAppointment": "Desmarcar"
+  },
+  "ClientsPage": {
+    "title": "Gerenciar Clientes",
+    "modal": {
+      "addClient": "Adicionar Cliente"
+    },
+    "form": {
+      "name": "Digite o nome",
+      "email": "Digite o e-mail",
+      "phone": "Digite o telefone",
+      "error": "Preencha todos os campos",
+      "description": "Todos os campos são obrigatórios"
+    },
+    "table": {
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "actions": "Ações"
+    },
+    "buttons": {
+      "edit": "Editar",
+      "remove": "Remover",
+      "addClient": "Adicionar Cliente",
+      "cancel": "Cancelar",
+      "save": "Salvar"
     }
   }
 }

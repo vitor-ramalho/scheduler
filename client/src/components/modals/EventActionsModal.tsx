@@ -33,7 +33,7 @@ export default function EventActionsModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="text-xl font-semibold text-gray-900">
-            Appointment Details
+            {t("appointmentDetails")}
           </div>
         </DialogHeader>
         <div className="space-y-6 py-4">
@@ -44,7 +44,7 @@ export default function EventActionsModal({
             </div>
             <div>
               <h3 className="font-medium text-gray-900">{event.clientName}</h3>
-              <p className="text-sm text-gray-500">Client</p>
+              <p className="text-sm text-gray-500">{t("customer")}</p>
             </div>
           </div>
 
@@ -55,20 +55,20 @@ export default function EventActionsModal({
             </div>
             <div>
               <h3 className="font-medium text-gray-900">
-                {event.start.toLocaleTimeString("en-US", {
+                {event.start.toLocaleTimeString("pt-BR", {
                   hour: "numeric",
                   minute: "2-digit",
                   hour12: true,
                 })}{" "}
                 -{" "}
-                {event.end.toLocaleTimeString("en-US", {
+                {event.end.toLocaleTimeString("pt-BR", {
                   hour: "numeric",
                   minute: "2-digit",
                   hour12: true,
                 })}
               </h3>
               <p className="text-sm text-gray-500">
-                {event.start.toLocaleDateString("en-US", {
+                {event.start.toLocaleDateString("pt-BR", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",

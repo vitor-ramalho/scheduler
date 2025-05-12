@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Calendar, Users, Bell, ClipboardList, Menu, X } from "lucide-react";
+import { Calendar, Users, ClipboardList, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
@@ -44,42 +44,28 @@ export default function Sidebar() {
               className="flex items-center gap-3 text-gray-900 hover:text-teal-600 font-medium"
             >
               <Calendar className="h-5 w-5" />
-              Dashboard
+              {t('dashboard')}
             </Link>
             <Link
               href="/dashboard/calendar"
               className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
             >
               <ClipboardList className="h-5 w-5" />
-              Calendar
+              {t('calendar')}
             </Link>
             <Link
-              href="/dashboard/patients"
+              href="/dashboard/clients"
               className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
             >
               <Users className="h-5 w-5" />
-              Patients
-            </Link>
-            <Link
-              href="/dashboard/book-appointment"
-              className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
-            >
-              <ClipboardList className="h-5 w-5" />
-              Book Appointment
-            </Link>
-            <Link
-              href="/dashboard/reminders"
-              className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
-            >
-              <Bell className="h-5 w-5" />
-              Reminders
+              {t('clients')}
             </Link>
             <Link
               href="/dashboard/professionals"
               className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
             >
               <Users className="h-5 w-5" />
-              Professionals
+              {t('professionals')}
             </Link>
           </nav>
         </div>

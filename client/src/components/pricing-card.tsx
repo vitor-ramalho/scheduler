@@ -10,19 +10,13 @@ import {
 } from "./ui/card";
 import { useTranslations } from "next-intl";
 
-interface Plan {
+export interface Plan {
   id: string;
   name: string;
   price: number;
   features: string[];
   interval?: string;
   popular?: boolean;
-}
-
-interface User {
-  id: string;
-  email: string;
-  // Add other user properties as needed
 }
 
 interface PricingCardProps {

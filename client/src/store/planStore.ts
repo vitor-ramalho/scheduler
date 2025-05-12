@@ -1,14 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { Plan } from "@/components/pricing-card";
 import api from "@/services/apiService";
 import { create } from "zustand";
 
-interface Plan {
-  id: string;
-  name: string;
-  price: string;
-  interval: string;
-}
 
 interface PlanState {
   plans: Plan[];

@@ -1,11 +1,12 @@
+import { Professional } from "@/app/dashboard/professionals/components/ProfessionalsPage";
 import api from "./apiService";
 
-export async function addProfessional(professionalData: any) {
+export async function addProfessional(professionalData: Professional) {
   const response = await api.post("/professionals", professionalData);
   return response.data;
 }
 
-export async function updateProfessional(id: string, professionalData: any) {
+export async function updateProfessional(id: string, professionalData: Professional) {
   const response = await api.put(`/professionals/${id}`, professionalData);
   return response.data;
 }

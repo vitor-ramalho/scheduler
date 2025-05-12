@@ -19,7 +19,7 @@ interface Plan {
   features: string[];
 }
 
-interface CompanyInfo {
+export interface CompanyInfo {
   identifier: string;
   name: string;
   phone: string;
@@ -166,11 +166,9 @@ export default function OnboardingPage() {
               <PricingCard
                 key={item.id}
                 item={item}
-                user={user}
                 selectable={true}
                 selectedPlan={selectedPlan}
                 onSelect={(plan) => setSelectedPlan(plan)}
-                onDeselect={() => setSelectedPlan(null)}
               />
             ))}
           </div>

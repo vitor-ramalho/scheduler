@@ -26,7 +26,7 @@ interface ClientData {
   email: string;
 }
 
-interface AppointmentData {
+export interface AppointmentData {
   clientId: string;
   professionalId: string; // Add professionalId
   startDate: string;
@@ -112,7 +112,7 @@ export default function CreateAppointmentModal({
     const rawIdentifier = formattedIdentifier.replace(/\D/g, "");
     if (rawIdentifier.length > 11) return;
     setClientData({ ...clientData, identifier: rawIdentifier });
-    setErrors({ ...errors, identifier: undefined });
+    setErrors({ ...errors, identifier: '' });
     if (rawIdentifier.length === 11) {
       setLoading(true);
       try {
@@ -151,7 +151,7 @@ export default function CreateAppointmentModal({
     const rawPhone = formattedPhone.replace(/\D/g, "");
     if (rawPhone.length > 11) return;
     setClientData({ ...clientData, phone: rawPhone });
-    setErrors({ ...errors, phone: undefined });
+    setErrors({ ...errors, phone: '' });
   };
 
   const handleClientSubmit = async () => {
@@ -210,6 +210,7 @@ export default function CreateAppointmentModal({
         professionalId: appointmentData.professionalId, // Include professionalId
         startDate: appointmentData.startDate,
         endDate: endDate.toISOString(),
+        duration: 0,
       });
       setAppointment(response);
       toast({

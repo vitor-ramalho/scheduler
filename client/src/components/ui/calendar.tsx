@@ -1,6 +1,7 @@
+/* eslint-disable */
 import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { DayPicker } from "react-day-picker";
+import { DateRange, DayPicker } from "react-day-picker";
 
 import { buttonVariants } from "../../components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,12 +16,12 @@ function Calendar({
   showOutsideDays = true,
   onSelect,
   ...props
-}: CalendarProps & { onSelect?: (date: Date) => void }) {
+}: CalendarProps & { onSelect?: React.Dispatch<React.SetStateAction<DateRange | undefined>> }) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("w-full h-screen p-3", className)} // Full width and height
-      onDayClick={(date) => onSelect?.(date)}
+      onDayClick={(date) => onSelect?.(date as unknown as DateRange)}
       classNames={{
         months: "flex flex-col space-y-4",
         month: "space-y-4",
@@ -52,8 +53,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeftIcon className="h-4 w-4" />,
-        IconRight: () => <ChevronRightIcon className="h-4 w-4" />,
+
       }}
       {...props}
     />

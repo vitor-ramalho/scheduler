@@ -49,7 +49,6 @@ export class ClientsController {
   @ApiResponse({
     status: 200,
     description: 'List of clients',
-    type: [ClientDto],
   })
   @Get()
   findAll(@GetUser('organizationId') organizationId: string) {

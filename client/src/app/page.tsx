@@ -117,7 +117,6 @@ export default function Home() {
               <PricingCard
                 key={item.id}
                 item={item}
-                user={{}}
                 selectable={false}
               />
             ))}

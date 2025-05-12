@@ -21,7 +21,6 @@ export class AppController {
     let isDatabaseConnected = false;
 
     try {
-      // Simple query to check database connection
       await this.dataSource.query('SELECT 1');
       isDatabaseConnected = true;
     } catch (error) {
