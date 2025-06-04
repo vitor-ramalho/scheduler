@@ -37,7 +37,7 @@ export interface DynamicTableProps<T> {
  * 
  * A reusable dynamic table using shadcn UI components with TypeScript support
  */
-const List = <T extends Record<string, any>>({
+const List = <T extends Record<string, unknown>>({
   columns = [],
   data = [],
   caption,
@@ -113,7 +113,7 @@ const List = <T extends Record<string, any>>({
   };
 
   // Helper to get cell value - Fixed to avoid TypeScript error
-  const getCellValue = (row: T, column: ColumnDef<T>) => {
+  const getCellValue = (row: T, column: ColumnDef<T>): React.ReactNode => {
     if (renderCustomCell) {
       return renderCustomCell(row, column);
     }
@@ -123,11 +123,18 @@ const List = <T extends Record<string, any>>({
     }
     
     if (column.accessorKey) {
-      return row[column.accessorKey];
+      const value = row[column.accessorKey];
+      // Convert to string or appropriate React node
+      return typeof value === 'object' && value !== null 
+        ? JSON.stringify(value) 
+        : String(value);
     }
     
-    // Now using type assertion since we're using Record<string, any>
-    return row[column.id as keyof T];
+    // Now using type assertion to safely convert to string or appropriate React node
+    const value = row[column.id as keyof T];
+    return typeof value === 'object' && value !== null 
+      ? JSON.stringify(value) 
+      : String(value);
   };
 
   return (

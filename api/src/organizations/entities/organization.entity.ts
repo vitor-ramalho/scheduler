@@ -36,6 +36,15 @@ export class Organization {
   @ManyToOne(() => Plan, (plan) => plan.organizations, { eager: true })
   plan: Plan;
 
+  @Column({ default: false })
+  isPlanActive: boolean;
+  
+  @Column({ nullable: true })
+  planExpiresAt?: Date;
+  
+  @Column({ nullable: true })
+  paymentId?: string;
+
   @Column({ default: true })
   isActive: boolean;
 

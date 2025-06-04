@@ -35,8 +35,9 @@ export const useAppointmentStore = create<AppointmentState>((set) => ({
       const response = await api.get(`/appointments/${professionalId}`);
       const data: Appointment[] = response.data;
       set({ appointments: data, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      set({ error: errorMessage, loading: false });
     }
   },
   setAppointment: (appointment) =>

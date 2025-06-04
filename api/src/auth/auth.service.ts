@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Organization } from '../organizations/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
+import { Plan } from '../plans/entities/plan.entity';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
     private readonly usersRepository: Repository<User>,
     @InjectRepository(Organization)
     private readonly organizationsRepository: Repository<Organization>,
+    @InjectRepository(Plan)
+    private readonly planRepository: Repository<Plan>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -98,11 +101,37 @@ export class AuthService {
     if (existingOrg) {
       throw new BadRequestException('Organization name already in use');
     }
+    
+    // Get the Free plan by default or use specified plan if provided
+    let plan: Plan;
+    
+    if (registerDto.planId) {
+      const foundPlan = await this.planRepository.findOne({
+        where: { id: registerDto.planId }
+      });
+      
+      if (!foundPlan) {
+        throw new BadRequestException('Specified plan not found');
+      }
+      
+      plan = foundPlan;
+    } else {
+      const defaultPlan = await this.planRepository.findOne({
+        where: { name: 'Essential' }
+      });
+      
+      if (!defaultPlan) {
+        throw new BadRequestException('Default plan not found. Please run the seed script first.');
+      }
+      
+      plan = defaultPlan;
+    }
 
-    // Create organization
+    // Create organization with the selected plan
     const organization = this.organizationsRepository.create({
       name: registerDto.organizationName,
       slug,
+      plan: plan
     });
 
     await this.organizationsRepository.save(organization);
@@ -142,6 +171,7 @@ export class AuthService {
           id: organization.id,
           name: organization.name,
           slug: organization.slug,
+          plan: plan,
         },
       },
       ...tokens,

@@ -54,4 +54,9 @@ export class OrganizationsService {
     Object.assign(organization, updateData);
     return this.organizationRepository.save(organization);
   }
+
+  async remove(id: string) {
+    const organization = await this.findById(id);
+    return this.organizationRepository.remove(organization);
+  }
 }

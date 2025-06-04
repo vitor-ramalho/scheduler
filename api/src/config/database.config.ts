@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 export default registerAs('database', (): TypeOrmModuleOptions => {
   const connectionString =
     process.env.DATABASE_URL ||
-    'postgres://scheduler:scheduler@localhost:5432/scheduler_db';
+    'postgres://postgres:postgres@localhost:5432/scheduler';
 
   return {
     type: 'postgres',

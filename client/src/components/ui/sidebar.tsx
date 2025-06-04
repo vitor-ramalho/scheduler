@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Calendar, Users, Bell, ClipboardList, Menu, X } from "lucide-react";
+import { Calendar, Users, Bell, ClipboardList, Menu, X, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/hooks/useAuth";
+import NotificationBell from "./notification-bell";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { user } = useAuth();
   const t = useTranslations("Navbar");
 
   const toggleSidebar = () => {
@@ -34,10 +36,14 @@ export default function Sidebar() {
         )}
       >
         <div className="p-6">
-          <h2 className="text-xl font-bold text-teal-600 mb-6 flex flex-row gap-1">
-            <Calendar className="h-6 w-6" />
-            {t("brand")}
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-teal-600 flex flex-row gap-1">
+              <Calendar className="h-6 w-6" />
+              {t("brand")}
+            </h2>
+            <NotificationBell />
+          </div>
+          
           <nav className="space-y-4">
             <Link
               href="/dashboard"
@@ -81,6 +87,16 @@ export default function Sidebar() {
               <Users className="h-5 w-5" />
               Professionals
             </Link>
+            
+            {user?.role === 'superadmin' && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 text-gray-700 hover:text-teal-600 font-medium"
+              >
+                <ShieldCheck className="h-5 w-5" />
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
       </div>

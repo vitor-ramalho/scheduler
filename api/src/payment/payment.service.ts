@@ -1,9 +1,14 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentProvider } from './interfaces/payment.provider.interface';
 import { GeneratePixDto } from './providers/dto/generate-pix.dto';
 import { CreatePaymentDTO } from './dto/create-payment.dto';
+import { CreateSubscriptionDto, UpdateSubscriptionDto } from './dto/subscription.dto';
 import { UsersService } from '../users/users.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Organization } from '../organizations/entities/organization.entity';
+import { Plan } from '../plans/entities/plan.entity';
 
 @Injectable()
 export class PaymentService {

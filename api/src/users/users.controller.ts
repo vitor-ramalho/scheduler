@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import {
@@ -21,11 +22,12 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -84,5 +86,23 @@ export class UsersController {
     @GetUser('organizationId') organizationId: string,
   ) {
     return this.usersService.remove(id, organizationId);
+  }
+
+  @ApiOperation({ summary: 'Update user role (superadmin only)' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User role updated' })
+  @Roles('superadmin')
+  @Patch(':id/role')
+  updateRole(
+    @Param('id') id: string,
+    @Body() updateUserRoleDto: UpdateUserRoleDto,
+  ) {
+    return this.usersService.updateRole(id, updateUserRoleDto.role);
+  }
+
+  @ApiOperation({ summary: 'Check if current user is superadmin' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Superadmin status' })
+  @Get('me/is-superadmin')
+  isSuperAdmin(@GetUser('role') role: string) {
+    return { isSuperAdmin: role === 'superadmin' };
   }
 }

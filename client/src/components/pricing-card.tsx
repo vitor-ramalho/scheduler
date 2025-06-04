@@ -19,17 +19,24 @@ interface Plan {
   popular?: boolean;
 }
 
-interface User {
+// Define a proper user type
+interface UserType {
   id: string;
   email: string;
-  // Add other user properties as needed
+  organization?: {
+    id: string;
+    name: string;
+    plan?: Plan;
+  };
 }
 
 interface PricingCardProps {
   item: Plan;
+  user?: UserType; // Make user prop optional with proper type
   selectable?: boolean;
   selectedPlan?: Plan | null;
   onSelect?: (plan: Plan) => void;
+  onDeselect?: () => void;
 }
 
 export default function PricingCard({

@@ -10,7 +10,7 @@ interface CompanyFormProps {
     phone: string;
     email: string;
   };
-  handleInputChange: (field: string, value: string) => void;
+  handleInputChange: (field: keyof CompanyFormProps['companyInfo'], value: string) => void;
   errors: {
     identifier?: string;
     name?: string;

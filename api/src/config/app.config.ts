@@ -7,4 +7,9 @@ export default registerAs('app', () => ({
     secret: process.env.JWT_SECRET || 'super-secret-key',
     expiresIn: process.env.JWT_EXPIRES_IN || '30d',
   },
+  payment: {
+    abacatePay: {
+      secretKey: process.env.ABACATE_PAY_SECRET_KEY,
+    },
+  },
 })); 

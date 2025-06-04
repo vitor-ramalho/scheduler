@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
 import { useUserStore } from "@/store/userStore";
 import { updateCompany } from "@/services/onboardingService";
+import { createSubscription } from "@/services/subscriptionService";
 import { usePlanStore } from "@/store/planStore";
 import PricingCard from "@/components/pricing-card";
 import PaymentPage from "@/components/payment/PaymentPage";
@@ -34,6 +35,20 @@ interface ValidationErrors {
   email: string;
 }
 
+interface PaymentData {
+  id: string;
+  amount: number;
+  status: string;
+  brCode?: string;
+  brCodeBase64?: string;
+  expiresAt?: string;
+  plan?: Plan;
+  organization?: {
+    id: string;
+    name: string;
+  };
+}
+
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
@@ -49,6 +64,7 @@ export default function OnboardingPage() {
     email: "",
   });
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const t = useTranslations("Onboarding");
@@ -111,16 +127,26 @@ export default function OnboardingPage() {
           toast.error("Organization ID is missing");
           return;
         }
-        const updatedCompany = await updateCompany(user.organization.id, {
-          ...companyInfo,
-          planId: selectedPlan.id,
-        });
-        if (!updatedCompany) {
-          toast.error("Failed to update plan");
+        if (!user?.id) {
+          toast.error("User ID is missing");
           return;
         }
-        setCompanyInfo(updatedCompany);
-        setStep(step + 1);
+        
+        try {
+          // Create subscription using the subscription service
+          const subscription = await createSubscription(
+            selectedPlan.id,
+            user.organization.id,
+            user.id
+          );
+          
+          // Store the subscription data for payment step
+          setPaymentData(subscription);
+          setStep(step + 1);
+        } catch (error) {
+          console.error("Error creating subscription:", error);
+          toast.error("Failed to create subscription. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Error during API request:", error);
@@ -178,6 +204,7 @@ export default function OnboardingPage() {
         {step === 3 && selectedPlan && (
           <PaymentPage
             amount={selectedPlan.price}
+            paymentData={paymentData}
             onSuccess={handlePaymentSuccess}
             onCancel={handlePaymentCancel}
           />

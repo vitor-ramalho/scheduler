@@ -6,12 +6,21 @@ export interface IUser {
   email: string;
   firstName: string;
   lastName: string;
-  role: "admin" | "user";
+  role: "admin" | "user" | "superadmin";
   organization: {
     id: string;
     name: string;
     slug: string;
-    plan: "basic" | "premium";
+    plan: {
+      id: string;
+      name: string;
+      description: string;
+      price: string;
+      features: string[];
+      interval: string;
+      createdAt: string;
+      updatedAt: string;
+    };
   };
 }
 
@@ -52,7 +61,8 @@ export async function register(
   password: string,
   organizationName: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  planId?: string
 ) {
   try {
     const response = await api.post("/auth/register", {
@@ -61,6 +71,7 @@ export async function register(
       organizationName,
       firstName,
       lastName,
+      planId,
     });
     const { user, accessToken, refreshToken } = response.data;
 
@@ -69,5 +80,15 @@ export async function register(
     return { user, accessToken, refreshToken };
   } catch {
     throw new Error("Registration failed");
+  }
+}
+
+export async function isSuperAdmin() {
+  try {
+    const response = await api.get('/users/me/is-superadmin');
+    return response.data.isSuperAdmin;
+  } catch (error) {
+    console.error('Failed to check superadmin status:', error);
+    return false;
   }
 }

@@ -11,17 +11,21 @@ import { ClientsModule } from './clients/clients.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { PlansModule } from './plans/plans.module';
 import { PaymentModule } from './payment/payment.module';
+import { AdminModule } from './admin/admin.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: configs,
+      envFilePath: '.env',
+      expandVariables: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         const databaseConfig =
           configService.get<TypeOrmModuleOptions>('database');
         if (!databaseConfig) {
@@ -37,6 +41,8 @@ import { PaymentModule } from './payment/payment.module';
     OrganizationsModule,
     PlansModule,
     PaymentModule,
+    AdminModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -30,6 +30,12 @@ export default function DashboardNavbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => router.push("/settings/profile")}>
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/settings/subscription")}>
+                Subscription
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={async () => {
                 router.push("/")
               }}>

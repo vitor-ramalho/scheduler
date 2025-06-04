@@ -22,7 +22,7 @@ export function useAuth() {
     }
   }, [accessToken, router, setUser, clearUser]);
 
-  const setLogin = (token: string) => {
+  const setLogin = () => {
     // Token is already set in the state during login
     router.push('/dashboard');
   };

@@ -26,8 +26,9 @@ export const usePlanStore = create<PlanState>((set) => ({
     try {
       const response = await api.get("/plans");
       set({ plans: response.data, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      set({ error: errorMessage, loading: false });
     }
   },
 }));
