@@ -9,8 +9,7 @@ import { configs } from './config';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
 import { OrganizationsModule } from './organizations/organizations.module';
-import { PlansModule } from './plans/plans.module';
-import { PaymentModule } from './payment/payment.module';
+import { ProfessionalModule } from './professional/professional.module';
 
 @Module({
   imports: [
@@ -35,8 +34,7 @@ import { PaymentModule } from './payment/payment.module';
     AppointmentsModule,
     ClientsModule,
     OrganizationsModule,
-    PlansModule,
-    PaymentModule,
+    ProfessionalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

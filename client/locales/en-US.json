@@ -71,14 +71,34 @@
   "SignUp": {
     "title": "Create Your Account",
     "organizationName": "Organization Name",
+    "organizationIdentifier": "Organization ID/Tax Number (optional)",
+    "organizationPhone": "Organization Phone (optional)",
+    "organizationEmail": "Organization Email (optional)",
     "name": "Full Name",
     "email": "Email Address",
     "password": "Password",
     "signUpButton": "Sign Up",
     "alreadyHaveAccount": "Already have an account?",
     "signInLink": "Sign In",
-    "firstName": "Name",
-    "lastName": "Last Name"
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "errors": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "email": "Valid email is required", 
+      "password": "Password must be at least 8 characters",
+      "organizationName": "Organization name is required"
+    },
+    "toasts": {
+      "success": {
+        "title": "Account created successfully!",
+        "description": "Welcome to the system"
+      },
+      "error": {
+        "title": "Error creating account",
+        "description": "Please try again"
+      }
+    }
   },
   "CalendarPage": {
     "weekdays": {

@@ -75,6 +75,9 @@
   "SignUp": {
     "title": "Crie Sua Conta",
     "organizationName": "Nome da Empresa",
+    "organizationIdentifier": "CNPJ/CPF da Organização (opcional)",
+    "organizationPhone": "Telefone da Organização (opcional)", 
+    "organizationEmail": "Email da Organização (opcional)",
     "email": "E-mail",
     "password": "Senha",
     "confirmPassword": "Confirme a Senha",
@@ -82,7 +85,24 @@
     "alreadyHaveAccount": "Já tem uma conta?",
     "signInLink": "Entrar",
     "firstName": "Nome",
-    "lastName": "Sobrenome"
+    "lastName": "Sobrenome",
+    "errors": {
+      "firstName": "Nome é obrigatório",
+      "lastName": "Sobrenome é obrigatório", 
+      "email": "Email válido é obrigatório",
+      "password": "Senha deve ter no mínimo 8 caracteres",
+      "organizationName": "Nome da organização é obrigatório"
+    },
+    "toasts": {
+      "success": {
+        "title": "Conta criada com sucesso!",
+        "description": "Bem-vindo ao sistema"
+      },
+      "error": {
+        "title": "Erro ao criar conta",
+        "description": "Tente novamente"
+      }
+    }
   },
   "CalendarPage": {
     "loading": "Carregando...",

@@ -19,28 +19,40 @@ const WeekView = ({ currentDate, events }: WeekViewProps) => {
     dates.push(date);
   }
 
+  // Helper function to filter events for a specific date
+  const getEventsForDate = (targetDate: Date) => {
+    return events.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.toDateString() === targetDate.toDateString();
+    });
+  };
+
   return (
     <div className="flex w-full overflow-hidden">
-      {dates.map((date, index) => (
-        <div key={index} className="flex-1 border-r">
-          <div className="text-center font-semibold mb-2">
-            {t(
-              "weekdays." +
-                date
-                  .toLocaleDateString("en-US", { weekday: "short" })
-                  .toLowerCase()
-            )}
-            , {date.getDate()}{" "}
-            {t(
-              "months." +
-                date
-                  .toLocaleDateString("en-US", { month: "short" })
-                  .toLowerCase()
-            )}
+      {dates.map((date, index) => {
+        const dayEvents = getEventsForDate(date);
+        
+        return (
+          <div key={index} className="flex-1 border-r">
+            <div className="text-center font-semibold mb-2">
+              {t(
+                "weekdays." +
+                  date
+                    .toLocaleDateString("en-US", { weekday: "short" })
+                    .toLowerCase()
+              )}
+              , {date.getDate()}{" "}
+              {t(
+                "months." +
+                  date
+                    .toLocaleDateString("en-US", { month: "short" })
+                    .toLowerCase()
+              )}
+            </div>
+            <Timeline currentDate={date} events={dayEvents} key={`${index}-${date.toDateString()}`} />
           </div>
-          {<Timeline currentDate={currentDate} events={events} key={index} />}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

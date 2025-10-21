@@ -14,6 +14,9 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
+  const [organizationIdentifier, setOrganizationIdentifier] = useState("");
+  const [organizationPhone, setOrganizationPhone] = useState("");
+  const [organizationEmail, setOrganizationEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -37,12 +40,21 @@ export default function SignUp() {
     setLoading(true);
     setErrors({});
     try {
-      await register(email, password, organizationName, firstName, lastName);
+      await register({
+        email,
+        password,
+        firstName,
+        lastName,
+        organizationName,
+        organizationIdentifier,
+        organizationPhone,
+        organizationEmail,
+      });
       toast({
         title: t("toasts.success.title"),
         description: t("toasts.success.description"),
       });
-      router.push("/onboarding");
+      router.push("/dashboard");
     } catch  {
       toast({
         title: t("toasts.error.title"),
@@ -99,6 +111,36 @@ export default function SignUp() {
             {errors.organizationName && (
               <p className="text-red-500 text-sm">{errors.organizationName}</p>
             )}
+          </div>
+          <div>
+            <Input
+              type="text"
+              placeholder={t("organizationIdentifier")}
+              value={organizationIdentifier}
+              onChange={(e) => setOrganizationIdentifier(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <Input
+              type="tel"
+              placeholder={t("organizationPhone")}
+              value={organizationPhone}
+              onChange={(e) => setOrganizationPhone(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <Input
+              type="email"
+              placeholder={t("organizationEmail")}
+              value={organizationEmail}
+              onChange={(e) => setOrganizationEmail(e.target.value)}
+              className="w-full p-3 border rounded text-gray-600"
+              disabled={loading}
+            />
           </div>
           <div>
             <Input

@@ -67,7 +67,6 @@ export class AuthService {
               id: user.organization.id,
               name: user.organization.name,
               slug: user.organization.slug,
-              plan: user.organization.plan,
             }
           : null,
       },
@@ -103,6 +102,9 @@ export class AuthService {
     const organization = this.organizationsRepository.create({
       name: registerDto.organizationName,
       slug,
+      identifier: registerDto.organizationIdentifier,
+      phone: registerDto.organizationPhone,
+      email: registerDto.organizationEmail,
     });
 
     await this.organizationsRepository.save(organization);
@@ -191,7 +193,6 @@ export class AuthService {
               id: user.organization.id,
               name: user.organization.name,
               slug: user.organization.slug,
-              plan: user.organization.plan,
             }
           : null,
       },

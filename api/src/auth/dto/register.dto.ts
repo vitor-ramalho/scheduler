@@ -49,4 +49,31 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   organizationName: string;
+
+  @ApiProperty({
+    description: 'Organization identifier (CNPJ, tax ID, etc.)',
+    example: '12345678000100',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  organizationIdentifier?: string;
+
+  @ApiProperty({
+    description: 'Organization phone number',
+    example: '+55 11 99999-9999',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  organizationPhone?: string;
+
+  @ApiProperty({
+    description: 'Organization email address',
+    example: 'contact@acme.com',
+    required: false,
+  })
+  @IsOptional()
+  @IsEmail()
+  organizationEmail?: string;
 }

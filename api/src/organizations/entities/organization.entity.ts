@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,7 +10,6 @@ import { User } from '../../users/entities/user.entity';
 import { Client } from '../../clients/entities/client.entity';
 import { Professional } from '../../professional/entities/professional.entity';
 import { Appointment } from '../../appointments/entities/appointment.entity';
-import { Plan } from '../../plans/entities/plan.entity';
 
 @Entity({ name: 'organizations' })
 export class Organization {
@@ -32,9 +30,6 @@ export class Organization {
 
   @Column({ nullable: true })
   email?: string;
-
-  @ManyToOne(() => Plan, (plan) => plan.organizations, { eager: true })
-  plan: Plan;
 
   @Column({ default: true })
   isActive: boolean;

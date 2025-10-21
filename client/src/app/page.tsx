@@ -2,7 +2,6 @@
 
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
-import PricingCard from "@/components/pricing-card";
 import Footer from "@/components/footer";
 import {
   ArrowUpRight,
@@ -11,19 +10,11 @@ import {
   CalendarClock,
   UserRound,
 } from "lucide-react";
-import { usePlanStore } from "@/store/planStore";
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 export default function Home() {
-  const { plans, fetchPlans } = usePlanStore();
-
   const t = useTranslations("HomePage");
-  useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
 
-  console.log(plans, "plans");
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <Navbar />
@@ -97,29 +88,6 @@ export default function Home() {
               <div className="text-4xl font-bold mb-2">25+</div>
               <div className="text-teal-100">{t("stats.hoursSaved")}</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-24 bg-white" id="pricing">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">
-              {t("pricing.title")}
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              {t("pricing.description")}
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
-            {plans?.map((item) => (
-              <PricingCard
-                key={item.id}
-                item={item}
-                selectable={false}
-              />
-            ))}
           </div>
         </div>
       </section>

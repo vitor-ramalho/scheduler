@@ -11,7 +11,9 @@ export interface IUser {
     id: string;
     name: string;
     slug: string;
-    plan: "basic" | "premium";
+    identifier?: string;
+    phone?: string;
+    email?: string;
   };
 }
 
@@ -47,21 +49,20 @@ export async function logout() {
   }
 }
 
-export async function register(
-  email: string,
-  password: string,
-  organizationName: string,
-  firstName: string,
-  lastName: string
-) {
+export interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  organizationName: string;
+  organizationIdentifier?: string;
+  organizationPhone?: string;
+  organizationEmail?: string;
+}
+
+export async function register(data: RegisterData) {
   try {
-    const response = await api.post("/auth/register", {
-      email,
-      password,
-      organizationName,
-      firstName,
-      lastName,
-    });
+    const response = await api.post("/auth/register", data);
     const { user, accessToken, refreshToken } = response.data;
 
     useUserStore.getState().setUser(user, accessToken, refreshToken);
