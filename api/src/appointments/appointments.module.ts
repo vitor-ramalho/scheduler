@@ -5,14 +5,16 @@ import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
 import { ClientsModule } from '../clients/clients.module';
 import { ProfessionalModule } from 'src/professional/professional.module';
+import { Organization } from '../organizations/entities/organization.entity';
+import { OrganizationEnabledGuard } from '../common/guards/organization-enabled.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Appointment]),
+    TypeOrmModule.forFeature([Appointment, Organization]),
     ProfessionalModule,
     ClientsModule,
   ],
   controllers: [AppointmentsController],
-  providers: [AppointmentsService],
+  providers: [AppointmentsService, OrganizationEnabledGuard],
 })
 export class AppointmentsModule {}

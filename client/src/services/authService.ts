@@ -7,7 +7,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   role: "admin" | "user";
-  organization: {
+  organization?: {
     id: string;
     name: string;
     slug: string;
@@ -29,8 +29,9 @@ export async function login(email: string, password: string) {
     localStorage.setItem("user", JSON.stringify(user));
 
     return user;
-  } catch {
-    throw new Error("Login failed");
+  } catch (error: unknown) {
+    const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Login failed";
+    throw new Error(message);
   }
 }
 
@@ -68,7 +69,8 @@ export async function register(data: RegisterData) {
     useUserStore.getState().setUser(user, accessToken, refreshToken);
 
     return { user, accessToken, refreshToken };
-  } catch {
-    throw new Error("Registration failed");
+  } catch (error: unknown) {
+    const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Registration failed";
+    throw new Error(message);
   }
 }

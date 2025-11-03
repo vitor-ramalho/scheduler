@@ -48,4 +48,4 @@ export class AuthResponseDto {
 export class LogoutResponseDto {
   @ApiProperty({ example: true })
   success: boolean;
-} 
+}

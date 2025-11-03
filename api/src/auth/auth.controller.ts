@@ -88,4 +88,7 @@ export class AuthController {
   logout(@GetUser('sub') userId: string) {
     return this.authService.logout(userId);
   }
+
+  // Admin creation endpoint removed for security
+  // Use database seeding or migration scripts instead
 }

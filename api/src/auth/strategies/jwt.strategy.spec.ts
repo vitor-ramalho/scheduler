@@ -61,7 +61,9 @@ describe('JwtStrategy', () => {
 
       usersRepository.findOne.mockResolvedValue(null);
 
-      await expect(jwtStrategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      await expect(jwtStrategy.validate(payload)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException when user is not active', async () => {
@@ -75,7 +77,9 @@ describe('JwtStrategy', () => {
       const inactiveUser = { ...mockUser, isActive: false };
       usersRepository.findOne.mockResolvedValue(inactiveUser);
 
-      await expect(jwtStrategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      await expect(jwtStrategy.validate(payload)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should return user payload when validation is successful', async () => {

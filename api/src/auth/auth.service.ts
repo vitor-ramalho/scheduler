@@ -67,6 +67,7 @@ export class AuthService {
               id: user.organization.id,
               name: user.organization.name,
               slug: user.organization.slug,
+              enabled: user.organization.enabled,
             }
           : null,
       },
@@ -119,7 +120,7 @@ export class AuthService {
       lastName: registerDto.lastName,
       password: hashedPassword,
       isActive: true,
-      role: 'admin', // Organization owner is an admin
+      role: 'user', // Regular users are 'user', not 'admin'
       organizationId: organization.id,
     });
 
@@ -193,6 +194,7 @@ export class AuthService {
               id: user.organization.id,
               name: user.organization.name,
               slug: user.organization.slug,
+              enabled: user.organization.enabled,
             }
           : null,
       },
@@ -239,6 +241,57 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+    };
+  }
+
+  async createAdmin(createAdminDto: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) {
+    // Verificar se já existe um usuário com este email
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: createAdminDto.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('Email already in use');
+    }
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+
+    // Criar usuário admin
+    const adminUser = this.usersRepository.create({
+      email: createAdminDto.email,
+      firstName: createAdminDto.firstName,
+      lastName: createAdminDto.lastName,
+      password: hashedPassword,
+      role: 'admin',
+      isActive: true,
+    });
+
+    const savedUser = await this.usersRepository.save(adminUser);
+
+    // Gerar tokens
+    const tokens = await this.getTokens(
+      savedUser.id,
+      savedUser.email,
+      savedUser.role,
+      null,
+    );
+
+    // Salvar refresh token
+    savedUser.refreshToken = tokens.refreshToken;
+    await this.usersRepository.save(savedUser);
+
+    // Remover senha da resposta
+    const { password, refreshToken, ...userResponse } = savedUser;
+
+    return {
+      user: userResponse,
+      ...tokens,
     };
   }
 }

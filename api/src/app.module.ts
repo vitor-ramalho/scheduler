@@ -10,6 +10,9 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ClientsModule } from './clients/clients.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { ProfessionalModule } from './professional/professional.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { BackofficeModule } from './backoffice/backoffice.module';
+import { AdminManagementModule } from './admin-management/admin-management.module';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { ProfessionalModule } from './professional/professional.module';
     ClientsModule,
     OrganizationsModule,
     ProfessionalModule,
+    DashboardModule,
+    BackofficeModule,
+    AdminManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],

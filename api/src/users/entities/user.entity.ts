@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
 
@@ -19,7 +27,6 @@ export class User {
   @Column()
   @Exclude()
   password: string;
-
 
   @Column({ nullable: true })
   @Exclude()

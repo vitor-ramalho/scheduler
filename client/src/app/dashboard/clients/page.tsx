@@ -33,7 +33,8 @@ const ClientsPage = () => {
   const [formData, setFormData] = useState<Partial<Client>>({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    identifier: ''
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
@@ -104,10 +105,7 @@ const ClientsPage = () => {
 
       if (currentClient) {
         // Update existing client
-        await updateClient({
-          ...formData,
-          identifier: currentClient.identifier
-        } as Client);
+        await updateClient(currentClient.id!, formData as Client);
 
         setNotification({
           type: 'success',
@@ -134,8 +132,8 @@ const ClientsPage = () => {
     }
   };
 
-  const handleRemove = (identifier: string) => {
-    setClientToDelete(identifier);
+  const handleRemove = (clientId: string) => {
+    setClientToDelete(clientId);
     setIsDeleteDialogOpen(true);
   };
 
@@ -144,7 +142,7 @@ const ClientsPage = () => {
 
     try {
       await deleteClient(clientToDelete);
-      setClients(clients.filter(c => c.identifier !== clientToDelete));
+      setClients(clients.filter(c => c.id !== clientToDelete));
       setNotification({
         type: 'success',
         message: t("notifications.clientDeleted")
@@ -163,7 +161,7 @@ const ClientsPage = () => {
 
   const handleRowClick = (client: Client) => {
     // Navigate to client details page
-    window.location.href = `/clients/${client.identifier}`;
+    window.location.href = `/clients/${client.id}`;
   };
 
   // Clear notification after 3 seconds
@@ -232,7 +230,7 @@ const ClientsPage = () => {
             size="sm"
             onClick={(e) => {
               e.stopPropagation(); // Prevent row click
-              handleRemove(row.identifier);
+              handleRemove(row.id!);
             }}
           >
             {t("buttons.remove")}
@@ -295,6 +293,20 @@ const ClientsPage = () => {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="identifier">{t("form.identifier")}</Label>
+              <Input
+                id="identifier"
+                value={formData.identifier || ''}
+                onChange={handleInputChange}
+                placeholder={t("form.placeholders.identifier")}
+                maxLength={11}
+              />
+              <div className="text-sm text-gray-500">
+                {t("form.identifierHelper")}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">{t("form.name")}</Label>
               <Input

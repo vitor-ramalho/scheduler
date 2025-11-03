@@ -5,7 +5,10 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,10 +18,12 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   }
 
   validate(req: Request, payload: any) {
-    const refreshToken = req.headers.authorization?.replace('Bearer ', '').trim();
+    const refreshToken = req.headers.authorization
+      ?.replace('Bearer ', '')
+      .trim();
     return {
       ...payload,
       refreshToken,
     };
   }
-} 
+}

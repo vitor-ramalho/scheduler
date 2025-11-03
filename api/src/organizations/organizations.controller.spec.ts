@@ -13,7 +13,7 @@ describe('OrganizationsController', () => {
     id: '1',
     name: 'Test Organization',
     email: 'test@example.com',
-    plan: { id: 'plan-1' }
+    plan: { id: 'plan-1' },
   };
 
   const mockJwtGuard = { canActivate: jest.fn().mockReturnValue(true) };
@@ -33,9 +33,9 @@ describe('OrganizationsController', () => {
         },
       ],
     })
-    .overrideGuard(JwtAuthGuard)
-    .useValue(mockJwtGuard)
-    .compile();
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtGuard)
+      .compile();
 
     controller = module.get<OrganizationsController>(OrganizationsController);
     service = module.get<OrganizationsService>(OrganizationsService);
@@ -50,7 +50,7 @@ describe('OrganizationsController', () => {
       const organizationDto: OrganizationDto = {
         name: 'Test Organization',
         email: 'test@example.com',
-        planId: 'plan-1'
+        planId: 'plan-1',
       };
 
       jest.spyOn(service, 'create').mockResolvedValue(mockOrganization as any);
@@ -64,7 +64,9 @@ describe('OrganizationsController', () => {
 
   describe('findAll', () => {
     it('should return all organizations', async () => {
-      jest.spyOn(service, 'findAll').mockResolvedValue([mockOrganization] as any);
+      jest
+        .spyOn(service, 'findAll')
+        .mockResolvedValue([mockOrganization] as any);
 
       const result = await controller.findAll();
 
@@ -75,7 +77,9 @@ describe('OrganizationsController', () => {
 
   describe('findById', () => {
     it('should return an organization by id', async () => {
-      jest.spyOn(service, 'findById').mockResolvedValue(mockOrganization as any);
+      jest
+        .spyOn(service, 'findById')
+        .mockResolvedValue(mockOrganization as any);
 
       const result = await controller.findById('1');
 
@@ -87,11 +91,13 @@ describe('OrganizationsController', () => {
   describe('update', () => {
     it('should update an organization', async () => {
       const updateData: UpdateOrganizationDto = {
-        name: 'Updated Organization'
+        name: 'Updated Organization',
       };
       const updatedOrganization = { ...mockOrganization, ...updateData };
 
-      jest.spyOn(service, 'update').mockResolvedValue(updatedOrganization as any);
+      jest
+        .spyOn(service, 'update')
+        .mockResolvedValue(updatedOrganization as any);
 
       const result = await controller.update('1', updateData);
 
@@ -99,4 +105,4 @@ describe('OrganizationsController', () => {
       expect(result).toEqual(updatedOrganization);
     });
   });
-}); 
+});

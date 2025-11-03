@@ -3,6 +3,7 @@
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import LandingPageGuard from "@/components/LandingPageGuard";
 import {
   ArrowUpRight,
   ClipboardCheck,
@@ -16,9 +17,10 @@ export default function Home() {
   const t = useTranslations("HomePage");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      <Navbar />
-      <Hero />
+    <LandingPageGuard>
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Navbar />
+        <Hero />
 
       {/* Features Section */}
       <section className="py-24 bg-white">
@@ -107,9 +109,10 @@ export default function Home() {
             <ArrowUpRight className="ml-2 w-4 h-4" />
           </a>
         </div>
-      </section>
+              </section>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </LandingPageGuard>
   );
 }

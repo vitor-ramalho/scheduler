@@ -65,15 +65,30 @@
     "email": "Email Address",
     "password": "Password",
     "signInButton": "Sign In",
+    "loading": "Signing in...",
     "noAccount": "Don't have an account?",
-    "signUpLink": "Sign Up"
+    "signUpLink": "Sign Up",
+    "errors": {
+      "email": "Valid email is required",
+      "password": "Password is required"
+    },
+    "toasts": {
+      "success": {
+        "title": "Login successful!",
+        "description": "Welcome back"
+      },
+      "error": {
+        "title": "Login error",
+        "description": "Invalid email or password"
+      }
+    }
   },
   "SignUp": {
     "title": "Create Your Account",
     "organizationName": "Organization Name",
-    "organizationIdentifier": "Organization ID/Tax Number (optional)",
-    "organizationPhone": "Organization Phone (optional)",
-    "organizationEmail": "Organization Email (optional)",
+    "organizationIdentifier": "Organization ID/Tax Number",
+    "organizationPhone": "Organization Phone",
+    "organizationEmail": "Organization Email",
     "name": "Full Name",
     "email": "Email Address",
     "password": "Password",
@@ -82,12 +97,16 @@
     "signInLink": "Sign In",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "loading": "Creating account...",
     "errors": {
       "firstName": "First name is required",
       "lastName": "Last name is required",
       "email": "Valid email is required", 
       "password": "Password must be at least 8 characters",
-      "organizationName": "Organization name is required"
+      "organizationName": "Organization name is required",
+      "organizationIdentifier": "Organization ID is required",
+      "organizationPhone": "Phone number is required",
+      "organizationEmail": "Organization email is required"
     },
     "toasts": {
       "success": {
@@ -264,5 +283,65 @@
     "step3Description": "Congratulations! You are ready to get started.",
     "nextButton": "Next",
     "finishButton": "Finish"
+  },
+  "OrganizationDisabled": {
+    "title": "Organization Disabled",
+    "description": "Your organization is temporarily disabled. Please contact support to reactivate access.",
+    "status": "Status: Awaiting Approval",
+    "contactSupport": "Contact Support",
+    "logout": "Sign Out",
+    "additionalInfo": "Our support team will respond within 24 hours"
+  },
+  "ClientsPage": {
+    "title": "Manage Clients",
+    "modal": {
+      "addClient": "Add Client",
+      "editClient": "Edit Client"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "identifier": "CPF/Tax ID",
+      "identifierHelper": "Optional CPF/Tax ID (numbers only, 11 digits)",
+      "error": "Please fill all fields",
+      "description": "All fields are required",
+      "placeholders": {
+        "identifier": "12345678901"
+      }
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "actions": "Actions"
+    },
+    "buttons": {
+      "edit": "Edit",
+      "remove": "Remove",
+      "delete": "Delete",
+      "addClient": "Add Client",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "clients": {
+      "noClientsFound": "No clients found"
+    },
+    "notifications": {
+      "clientDeleted": "Client deleted successfully",
+      "clientCreated": "Client created successfully",
+      "clientUpdated": "Client updated successfully"
+    },
+    "errors": {
+      "deleteFailed": "Failed to delete client",
+      "saveFailed": "Failed to save client",
+      "unexpectedError": "Unexpected error",
+      "allFieldsRequired": "All required fields must be filled"
+    },
+    "dialog": {
+      "confirmDelete": "Confirm Deletion",
+      "deleteWarning": "Are you sure you want to delete this client? This action cannot be undone."
+    }
   }
 }

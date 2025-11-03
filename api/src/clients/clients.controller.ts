@@ -21,11 +21,12 @@ import {
 } from '@nestjs/swagger';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { OrganizationEnabledGuard } from '../common/guards/organization-enabled.guard';
 import { ClientDto } from './dto/client.dto';
 
 @ApiTags('clients')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationEnabledGuard)
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}

@@ -33,21 +33,45 @@ describe('UsersController', () => {
   });
 
   it('should call findAll and return a list of users', async () => {
-    const result = [{ id: '1', email: 'test@example.com', firstName: 'Test', lastName: 'User', password: 'hashed', role: 'user', isActive: true }];
+    const result = [
+      {
+        id: '1',
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        password: 'hashed',
+        role: 'user',
+        isActive: true,
+      },
+    ];
     jest.spyOn(service, 'findAll').mockResolvedValue(result as any);
 
     expect(await controller.findAll('org-id')).toBe(result);
   });
 
   it('should call findOne and return a user', async () => {
-    const result = { id: '1', email: 'test@example.com', firstName: 'Test', lastName: 'User', password: 'hashed', role: 'user', isActive: true };
+    const result = {
+      id: '1',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      password: 'hashed',
+      role: 'user',
+      isActive: true,
+    };
     jest.spyOn(service, 'findOne').mockResolvedValue(result as any);
 
     expect(await controller.findOne('1', 'org-id')).toBe(result);
   });
 
   it('should call create and return the created user', async () => {
-    const dto = { email: 'new@example.com', firstName: 'New', lastName: 'User', password: 'hashed', role: 'user' };
+    const dto = {
+      email: 'new@example.com',
+      firstName: 'New',
+      lastName: 'User',
+      password: 'hashed',
+      role: 'user',
+    };
     const result = { id: '1', ...dto };
     jest.spyOn(service, 'create').mockResolvedValue(result as any);
 
@@ -56,7 +80,15 @@ describe('UsersController', () => {
 
   it('should call update and return the updated user', async () => {
     const dto = { firstName: 'Updated' };
-    const result = { id: '1', email: 'test@example.com', firstName: 'Updated', lastName: 'User', password: 'hashed', role: 'user', isActive: true };
+    const result = {
+      id: '1',
+      email: 'test@example.com',
+      firstName: 'Updated',
+      lastName: 'User',
+      password: 'hashed',
+      role: 'user',
+      isActive: true,
+    };
     jest.spyOn(service, 'update').mockResolvedValue(result as any);
 
     expect(await controller.update('1', dto, 'org-id')).toBe(result);

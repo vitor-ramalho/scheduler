@@ -69,15 +69,30 @@
     "email": "E-mail",
     "password": "Senha",
     "signInButton": "Entrar",
+    "loading": "Entrando...",
     "noAccount": "Não tem uma conta?",
-    "signUpLink": "Cadastre-se"
+    "signUpLink": "Cadastre-se",
+    "errors": {
+      "email": "Email válido é obrigatório",
+      "password": "Senha é obrigatória"
+    },
+    "toasts": {
+      "success": {
+        "title": "Login realizado com sucesso!",
+        "description": "Bem-vindo de volta"
+      },
+      "error": {
+        "title": "Erro no login",
+        "description": "Email ou senha incorretos"
+      }
+    }
   },
   "SignUp": {
     "title": "Crie Sua Conta",
     "organizationName": "Nome da Empresa",
-    "organizationIdentifier": "CNPJ/CPF da Organização (opcional)",
-    "organizationPhone": "Telefone da Organização (opcional)", 
-    "organizationEmail": "Email da Organização (opcional)",
+    "organizationIdentifier": "CNPJ/CPF da Organização",
+    "organizationPhone": "Telefone da Organização", 
+    "organizationEmail": "Email da Organização",
     "email": "E-mail",
     "password": "Senha",
     "confirmPassword": "Confirme a Senha",
@@ -86,12 +101,16 @@
     "signInLink": "Entrar",
     "firstName": "Nome",
     "lastName": "Sobrenome",
+    "loading": "Cadastrando...",
     "errors": {
       "firstName": "Nome é obrigatório",
       "lastName": "Sobrenome é obrigatório", 
       "email": "Email válido é obrigatório",
       "password": "Senha deve ter no mínimo 8 caracteres",
-      "organizationName": "Nome da organização é obrigatório"
+      "organizationName": "Nome da organização é obrigatório",
+      "organizationIdentifier": "CNPJ/CPF é obrigatório",
+      "organizationPhone": "Telefone é obrigatório",
+      "organizationEmail": "Email da organização é obrigatório"
     },
     "toasts": {
       "success": {
@@ -299,27 +318,61 @@
   "ClientsPage": {
     "title": "Gerenciar Clientes",
     "modal": {
-      "addClient": "Adicionar Cliente"
+      "addClient": "Adicionar Cliente",
+      "editClient": "Editar Cliente"
     },
     "form": {
-      "name": "Digite o nome",
-      "email": "Digite o e-mail",
-      "phone": "Digite o telefone",
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "identifier": "CPF",
+      "identifierHelper": "CPF opcional (apenas números, 11 dígitos)",
       "error": "Preencha todos os campos",
-      "description": "Todos os campos são obrigatórios"
+      "description": "Todos os campos são obrigatórios",
+      "placeholders": {
+        "identifier": "12345678901"
+      }
     },
     "table": {
       "name": "Nome",
-      "email": "Email",
+      "email": "E-mail",
       "phone": "Telefone",
       "actions": "Ações"
     },
     "buttons": {
       "edit": "Editar",
       "remove": "Remover",
+      "delete": "Excluir",
       "addClient": "Adicionar Cliente",
       "cancel": "Cancelar",
-      "save": "Salvar"
+      "save": "Salvar",
+      "saving": "Salvando..."
+    },
+    "clients": {
+      "noClientsFound": "Nenhum cliente encontrado"
+    },
+    "notifications": {
+      "clientDeleted": "Cliente excluído com sucesso",
+      "clientCreated": "Cliente criado com sucesso",
+      "clientUpdated": "Cliente atualizado com sucesso"
+    },
+    "errors": {
+      "deleteFailed": "Erro ao excluir cliente",
+      "saveFailed": "Erro ao salvar cliente",
+      "unexpectedError": "Erro inesperado",
+      "allFieldsRequired": "Todos os campos obrigatórios devem ser preenchidos"
+    },
+    "dialog": {
+      "confirmDelete": "Confirmar Exclusão",
+      "deleteWarning": "Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
     }
+  },
+  "OrganizationDisabled": {
+    "title": "Organização Desabilitada",
+    "description": "Sua organização está temporariamente desabilitada. Entre em contato com o suporte para reativar o acesso.",
+    "status": "Status: Aguardando Aprovação",
+    "contactSupport": "Entrar em Contato",
+    "logout": "Sair da Conta",
+    "additionalInfo": "Nosso suporte responderá em até 24 horas"
   }
 }

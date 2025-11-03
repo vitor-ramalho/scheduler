@@ -17,14 +17,21 @@ export function useAuth() {
         setUser(JSON.parse(storedUser), storedAccessToken, localStorage.getItem('refreshToken') || '');
       } else {
         clearUser(); // Ensure state is cleared
-        router.push('/sign-in');
+        // Removido: router.push('/sign-in'); 
+        // Não força redirecionamento - deixa cada página decidir
       }
     }
-  }, [accessToken, router, setUser, clearUser]);
+  }, [accessToken, setUser, clearUser]);
 
   const setLogin = () => {
-    // Token is already set in the state during login
-    router.push('/dashboard');
+    // Redirecionar baseado no role do usuário
+    if (user?.role === 'admin') {
+      router.push('/backoffice');
+    } else if (user?.organization && !user.organization.enabled) {
+      router.push('/organization-disabled');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const setLogout = async () => {

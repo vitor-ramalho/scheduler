@@ -28,7 +28,9 @@ describe('ClientsService', () => {
     }).compile();
 
     service = module.get<ClientsService>(ClientsService);
-    clientRepository = module.get<Repository<Client>>(getRepositoryToken(Client));
+    clientRepository = module.get<Repository<Client>>(
+      getRepositoryToken(Client),
+    );
   });
 
   it('should be defined', () => {
@@ -41,12 +43,16 @@ describe('ClientsService', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phone: '1234567890',
-        identifier: '12526555452'
+        identifier: '12526555452',
       };
       const createdClient = { id: '1', ...clientData };
 
-      jest.spyOn(clientRepository, 'create').mockReturnValue(createdClient as Client);
-      jest.spyOn(clientRepository, 'save').mockResolvedValue(createdClient as Client);
+      jest
+        .spyOn(clientRepository, 'create')
+        .mockReturnValue(createdClient as Client);
+      jest
+        .spyOn(clientRepository, 'save')
+        .mockResolvedValue(createdClient as Client);
 
       const result = await service.create(clientData, 'org-id');
 
@@ -62,13 +68,19 @@ describe('ClientsService', () => {
   describe('findAll', () => {
     it('should return all clients for an organization', async () => {
       const organizationId = 'org-id';
-      const clients = [{ id: '1', name: 'John Doe', email: 'john@example.com' }];
+      const clients = [
+        { id: '1', name: 'John Doe', email: 'john@example.com' },
+      ];
 
-      jest.spyOn(clientRepository, 'find').mockResolvedValue(clients as Client[]);
+      jest
+        .spyOn(clientRepository, 'find')
+        .mockResolvedValue(clients as Client[]);
 
       const result = await service.findAll(organizationId);
 
-      expect(clientRepository.find).toHaveBeenCalledWith({ where: { organization: { id: organizationId } } });
+      expect(clientRepository.find).toHaveBeenCalledWith({
+        where: { organization: { id: organizationId } },
+      });
       expect(result).toEqual(clients);
     });
   });
@@ -76,33 +88,54 @@ describe('ClientsService', () => {
   describe('update', () => {
     it('should update and save a client', async () => {
       const clientData = { name: 'Updated Name' };
-      const existingClient = { id: '1', name: 'John Doe', email: 'john@example.com' };
+      const existingClient = {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com',
+      };
 
-      jest.spyOn(clientRepository, 'findOne').mockResolvedValue(existingClient as Client);
-      jest.spyOn(clientRepository, 'save').mockResolvedValue({ ...existingClient, ...clientData } as Client);
+      jest
+        .spyOn(clientRepository, 'findOne')
+        .mockResolvedValue(existingClient as Client);
+      jest
+        .spyOn(clientRepository, 'save')
+        .mockResolvedValue({ ...existingClient, ...clientData } as Client);
 
       const result = await service.update('1', clientData, 'org-id');
 
       expect(clientRepository.findOne).toHaveBeenCalledWith({
         where: { id: '1', organization: { id: 'org-id' } },
       });
-      expect(clientRepository.save).toHaveBeenCalledWith({ ...existingClient, ...clientData });
+      expect(clientRepository.save).toHaveBeenCalledWith({
+        ...existingClient,
+        ...clientData,
+      });
       expect(result).toEqual({ ...existingClient, ...clientData });
     });
 
     it('should throw NotFoundException if client does not exist', async () => {
       jest.spyOn(clientRepository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.update('1', { name: 'Updated Name' }, 'org-id')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update('1', { name: 'Updated Name' }, 'org-id'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should remove a client', async () => {
-      const existingClient = { id: '1', name: 'John Doe', email: 'john@example.com' };
+      const existingClient = {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com',
+      };
 
-      jest.spyOn(clientRepository, 'findOne').mockResolvedValue(existingClient as Client);
-      jest.spyOn(clientRepository, 'remove').mockResolvedValue(existingClient as Client);
+      jest
+        .spyOn(clientRepository, 'findOne')
+        .mockResolvedValue(existingClient as Client);
+      jest
+        .spyOn(clientRepository, 'remove')
+        .mockResolvedValue(existingClient as Client);
 
       const result = await service.remove('1', 'org-id');
 
@@ -116,7 +149,9 @@ describe('ClientsService', () => {
     it('should throw NotFoundException if client does not exist', async () => {
       jest.spyOn(clientRepository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.remove('1', 'org-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('1', 'org-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

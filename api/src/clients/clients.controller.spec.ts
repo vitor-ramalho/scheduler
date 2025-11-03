@@ -35,7 +35,7 @@ describe('ClientsController', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phone: '1234567890',
-        identifier: '12526555452'
+        identifier: '12526555452',
       };
       const createdClient = { id: '1', ...clientData };
 
@@ -50,13 +50,15 @@ describe('ClientsController', () => {
 
   describe('findAll', () => {
     it('should call service.findAll with organizationId and return the result', async () => {
-      const clients = [{
-        id: '1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '1234567890',
-        identifier: '12526555452'
-      }];
+      const clients = [
+        {
+          id: '1',
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: '1234567890',
+          identifier: '12526555452',
+        },
+      ];
 
       jest.spyOn(service, 'findAll').mockResolvedValue(clients as any);
 
@@ -74,22 +76,32 @@ describe('ClientsController', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phone: '1234567890',
-        identifier: '12526555452'
+        identifier: '12526555452',
       };
 
       jest.spyOn(service, 'findByIdentifier').mockResolvedValue(client as any);
 
       const result = await controller.findByIdentifier('12526555452', 'org-id');
 
-      expect(service.findByIdentifier).toHaveBeenCalledWith('12526555452', 'org-id');
+      expect(service.findByIdentifier).toHaveBeenCalledWith(
+        '12526555452',
+        'org-id',
+      );
       expect(result).toEqual(client);
     });
 
     it('should throw NotFoundException when client is not found', async () => {
-      jest.spyOn(service, 'findByIdentifier').mockRejectedValue(new NotFoundException('Client not found'));
+      jest
+        .spyOn(service, 'findByIdentifier')
+        .mockRejectedValue(new NotFoundException('Client not found'));
 
-      await expect(controller.findByIdentifier('nonexistent', 'org-id')).rejects.toThrow(NotFoundException);
-      expect(service.findByIdentifier).toHaveBeenCalledWith('nonexistent', 'org-id');
+      await expect(
+        controller.findByIdentifier('nonexistent', 'org-id'),
+      ).rejects.toThrow(NotFoundException);
+      expect(service.findByIdentifier).toHaveBeenCalledWith(
+        'nonexistent',
+        'org-id',
+      );
     });
   });
 
@@ -99,7 +111,7 @@ describe('ClientsController', () => {
         name: 'Updated Name',
         email: 'john@example.com',
         phone: '1234567890',
-        identifier: '12526555452'
+        identifier: '12526555452',
       };
       const updatedClient = { id: '1', ...clientData };
 
@@ -116,10 +128,18 @@ describe('ClientsController', () => {
         name: 'Updated Name',
       };
 
-      jest.spyOn(service, 'update').mockRejectedValue(new NotFoundException('Client not found'));
+      jest
+        .spyOn(service, 'update')
+        .mockRejectedValue(new NotFoundException('Client not found'));
 
-      await expect(controller.update('nonexistent', clientData, 'org-id')).rejects.toThrow(NotFoundException);
-      expect(service.update).toHaveBeenCalledWith('nonexistent', clientData, 'org-id');
+      await expect(
+        controller.update('nonexistent', clientData, 'org-id'),
+      ).rejects.toThrow(NotFoundException);
+      expect(service.update).toHaveBeenCalledWith(
+        'nonexistent',
+        clientData,
+        'org-id',
+      );
     });
   });
 
@@ -130,7 +150,7 @@ describe('ClientsController', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phone: '1234567890',
-        identifier: '12526555452'
+        identifier: '12526555452',
       };
 
       jest.spyOn(service, 'remove').mockResolvedValue(removedClient as any);
@@ -142,9 +162,13 @@ describe('ClientsController', () => {
     });
 
     it('should throw NotFoundException when client to remove is not found', async () => {
-      jest.spyOn(service, 'remove').mockRejectedValue(new NotFoundException('Client not found'));
+      jest
+        .spyOn(service, 'remove')
+        .mockRejectedValue(new NotFoundException('Client not found'));
 
-      await expect(controller.remove('nonexistent', 'org-id')).rejects.toThrow(NotFoundException);
+      await expect(controller.remove('nonexistent', 'org-id')).rejects.toThrow(
+        NotFoundException,
+      );
       expect(service.remove).toHaveBeenCalledWith('nonexistent', 'org-id');
     });
   });

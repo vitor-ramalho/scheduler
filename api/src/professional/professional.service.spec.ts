@@ -15,7 +15,7 @@ describe('ProfessionalService', () => {
     name: 'John Doe',
     email: 'john@example.com',
     phone: '1234567890',
-    organization: { id: 'org-1' }
+    organization: { id: 'org-1' },
   };
 
   beforeEach(async () => {
@@ -50,7 +50,7 @@ describe('ProfessionalService', () => {
       const professionalDto: ProfessionalDto = {
         name: 'John Doe',
         email: 'john@example.com',
-        phone: '1234567890'
+        phone: '1234567890',
       };
 
       jest.spyOn(repository, 'create').mockReturnValue(mockProfessional as any);
@@ -60,7 +60,7 @@ describe('ProfessionalService', () => {
 
       expect(repository.create).toHaveBeenCalledWith({
         ...professionalDto,
-        organization: { id: 'org-1' }
+        organization: { id: 'org-1' },
       });
       expect(repository.save).toHaveBeenCalledWith(mockProfessional);
       expect(result).toEqual(mockProfessional);
@@ -69,12 +69,14 @@ describe('ProfessionalService', () => {
 
   describe('findAll', () => {
     it('should return all professionals for an organization', async () => {
-      jest.spyOn(repository, 'find').mockResolvedValue([mockProfessional] as any);
+      jest
+        .spyOn(repository, 'find')
+        .mockResolvedValue([mockProfessional] as any);
 
       const result = await service.findAll('org-1');
 
       expect(repository.find).toHaveBeenCalledWith({
-        where: { organization: { id: 'org-1' } }
+        where: { organization: { id: 'org-1' } },
       });
       expect(result).toEqual([mockProfessional]);
     });
@@ -85,13 +87,17 @@ describe('ProfessionalService', () => {
       const updateData: Partial<ProfessionalDto> = { name: 'Updated Name' };
       const updatedProfessional = { ...mockProfessional, ...updateData };
 
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockProfessional as any);
-      jest.spyOn(repository, 'save').mockResolvedValue(updatedProfessional as any);
+      jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(mockProfessional as any);
+      jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(updatedProfessional as any);
 
       const result = await service.update('1', updateData, 'org-1');
 
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: '1', organization: { id: 'org-1' } }
+        where: { id: '1', organization: { id: 'org-1' } },
       });
       expect(repository.save).toHaveBeenCalledWith(updatedProfessional);
       expect(result).toEqual(updatedProfessional);
@@ -101,20 +107,24 @@ describe('ProfessionalService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.update('nonexistent', { name: 'Updated Name' }, 'org-1')
+        service.update('nonexistent', { name: 'Updated Name' }, 'org-1'),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should remove a professional', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockProfessional as any);
-      jest.spyOn(repository, 'remove').mockResolvedValue(mockProfessional as any);
+      jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(mockProfessional as any);
+      jest
+        .spyOn(repository, 'remove')
+        .mockResolvedValue(mockProfessional as any);
 
       const result = await service.remove('1', 'org-1');
 
       expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: '1', organization: { id: 'org-1' } }
+        where: { id: '1', organization: { id: 'org-1' } },
       });
       expect(repository.remove).toHaveBeenCalledWith(mockProfessional);
       expect(result).toEqual(mockProfessional);
@@ -123,9 +133,9 @@ describe('ProfessionalService', () => {
     it('should throw NotFoundException when professional is not found', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
-      await expect(
-        service.remove('nonexistent', 'org-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent', 'org-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

@@ -13,7 +13,7 @@ describe('ProfessionalController', () => {
     name: 'John Doe',
     email: 'john@example.com',
     phone: '1234567890',
-    organization: { id: 'org-1' }
+    organization: { id: 'org-1' },
   };
 
   const mockJwtGuard = { canActivate: jest.fn().mockReturnValue(true) };
@@ -33,9 +33,9 @@ describe('ProfessionalController', () => {
         },
       ],
     })
-    .overrideGuard(JwtAuthGuard)
-    .useValue(mockJwtGuard)
-    .compile();
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtGuard)
+      .compile();
 
     controller = module.get<ProfessionalController>(ProfessionalController);
     service = module.get<ProfessionalService>(ProfessionalService);
@@ -50,7 +50,7 @@ describe('ProfessionalController', () => {
       const professionalDto: ProfessionalDto = {
         name: 'John Doe',
         email: 'john@example.com',
-        phone: '1234567890'
+        phone: '1234567890',
       };
 
       jest.spyOn(service, 'create').mockResolvedValue(mockProfessional as any);
@@ -64,7 +64,9 @@ describe('ProfessionalController', () => {
 
   describe('findAll', () => {
     it('should return all professionals for an organization', async () => {
-      jest.spyOn(service, 'findAll').mockResolvedValue([mockProfessional] as any);
+      jest
+        .spyOn(service, 'findAll')
+        .mockResolvedValue([mockProfessional] as any);
 
       const result = await controller.findAll('org-1');
 
@@ -78,7 +80,9 @@ describe('ProfessionalController', () => {
       const updateData: Partial<ProfessionalDto> = { name: 'Updated Name' };
       const updatedProfessional = { ...mockProfessional, ...updateData };
 
-      jest.spyOn(service, 'update').mockResolvedValue(updatedProfessional as any);
+      jest
+        .spyOn(service, 'update')
+        .mockResolvedValue(updatedProfessional as any);
 
       const result = await controller.update('1', updateData, 'org-1');
 

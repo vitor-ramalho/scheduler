@@ -73,4 +73,37 @@ export class OrganizationsController {
   update(@Param('id') id: string, @Body() data: UpdateOrganizationDto) {
     return this.organizationsService.update(id, data);
   }
+
+  @ApiOperation({ summary: 'Enable an organization' })
+  @ApiOkResponse({
+    description: 'Organization enabled successfully',
+    type: OrganizationDto,
+  })
+  @ApiNotFoundResponse({ description: 'Organization not found' })
+  @Patch(':id/enable')
+  enableOrganization(@Param('id') id: string) {
+    return this.organizationsService.enableOrganization(id);
+  }
+
+  @ApiOperation({ summary: 'Disable an organization' })
+  @ApiOkResponse({
+    description: 'Organization disabled successfully',
+    type: OrganizationDto,
+  })
+  @ApiNotFoundResponse({ description: 'Organization not found' })
+  @Patch(':id/disable')
+  disableOrganization(@Param('id') id: string) {
+    return this.organizationsService.disableOrganization(id);
+  }
+
+  @ApiOperation({ summary: 'Toggle organization status (enable/disable)' })
+  @ApiOkResponse({
+    description: 'Organization status toggled successfully',
+    type: OrganizationDto,
+  })
+  @ApiNotFoundResponse({ description: 'Organization not found' })
+  @Patch(':id/toggle-status')
+  toggleOrganizationStatus(@Param('id') id: string) {
+    return this.organizationsService.toggleOrganizationStatus(id);
+  }
 }

@@ -107,7 +107,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.findOne('1', 'org-1')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('1', 'org-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -153,7 +155,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
 
-      await expect(service.update('1', {}, 'org-1')).rejects.toThrow(NotFoundException);
+      await expect(service.update('1', {}, 'org-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -169,7 +173,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
 
-      await expect(service.remove('1', 'org-1')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('1', 'org-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
-}); 
+});

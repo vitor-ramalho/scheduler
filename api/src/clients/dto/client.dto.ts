@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, Matches, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  Matches,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 
 export class ClientDto {
-  @ApiProperty({ example: '12526555452' })
+  @ApiProperty({ example: '12526555452', required: false })
+  @IsOptional()
   @Matches(/^\d{11}$/, { message: 'Identifier must be exactly 11 digits' })
-  @IsNotEmpty()
-  identifier: string;
+  identifier?: string;
 
   @ApiProperty({ example: 'John Doe' })
   @IsString()

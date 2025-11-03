@@ -1,7 +1,8 @@
 import api from "./apiService";
 
 export interface Client {
-  identifier: string;
+  id?: string;
+  identifier?: string;
   name: string;
   phone: string;
   email: string;
@@ -24,17 +25,15 @@ export async function addClient(clientData: Client) {
 
 export async function fetchClients(): Promise<Client[]> {
   const response = await api.get("/clients");
-  return response.data
+  return response.data;
 }
 
-export async function updateClient(clientData: Client) {
-  const response = await api.post("/clients", clientData);
+export async function updateClient(clientId: string, clientData: Client) {
+  const response = await api.put(`/clients/${clientId}`, clientData);
   return response.data;
 }
 
 export async function deleteClient(clientId: string) {
-  const response = await api.delete("/clients", {
-    params: clientId
-  })
-  return response.data
+  const response = await api.delete(`/clients/${clientId}`);
+  return response.data;
 }

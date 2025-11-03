@@ -22,4 +22,4 @@ export class DatabaseErrorMiddleware implements NestMiddleware {
       }
     }
   }
-} 
+}

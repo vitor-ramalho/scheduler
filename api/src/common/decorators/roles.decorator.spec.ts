@@ -46,4 +46,4 @@ describe('Roles Decorator', () => {
 
     expect(metadata).toEqual([role]);
   });
-}); 
+});

@@ -125,4 +125,4 @@ describe('AuthController', () => {
       expect(result).toEqual(mockLogoutResponse);
     });
   });
-}); 
+});

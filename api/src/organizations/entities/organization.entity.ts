@@ -31,8 +31,8 @@ export class Organization {
   @Column({ nullable: true })
   email?: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ default: false })
+  enabled: boolean;
 
   @OneToMany(() => User, (user) => user.organization)
   users: User[];

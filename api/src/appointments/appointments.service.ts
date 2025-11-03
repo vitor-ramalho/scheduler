@@ -46,13 +46,16 @@ export class AppointmentsService {
 
   async findAppointments(organizationId: string) {
     const appointments = await this.appointmentRepository.find({
-      where: { client: { organization: { id: organizationId } } },
+      where: { organization: { id: organizationId } },
+      relations: ['client', 'professional'],
     });
 
     return appointments.map((appointment) => ({
       ...appointment,
-      clientName: appointment.client.name,
-      clientEmail: appointment.client.email,
+      clientName: appointment.client?.name || 'Cliente não encontrado',
+      clientEmail: appointment.client?.email || '',
+      professionalName:
+        appointment.professional?.name || 'Profissional não encontrado',
     }));
   }
 
@@ -69,12 +72,10 @@ export class AppointmentsService {
           id: professionalId,
         },
       },
+      relations: ['client', 'professional'],
     });
 
-    if (appointments.length === 0) {
-      throw new NotFoundException('Appointments not found');
-    }
-
+    // Retorna lista vazia se não houver agendamentos, não um erro
     return appointments;
   }
 }

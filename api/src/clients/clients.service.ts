@@ -26,7 +26,7 @@ export class ClientsService {
   }
 
   async findByIdentifier(identifier: string, organizationId: string) {
-    console.log('client',{ identifier, organizationId });
+    console.log('client', { identifier, organizationId });
     const client = await this.clientRepository.findOneBy({
       identifier,
       organization: { id: organizationId },

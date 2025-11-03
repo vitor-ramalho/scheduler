@@ -38,4 +38,22 @@ export class OrganizationsService {
     Object.assign(organization, updateData);
     return this.organizationRepository.save(organization);
   }
+
+  async enableOrganization(id: string) {
+    const organization = await this.findById(id);
+    organization.enabled = true;
+    return this.organizationRepository.save(organization);
+  }
+
+  async disableOrganization(id: string) {
+    const organization = await this.findById(id);
+    organization.enabled = false;
+    return this.organizationRepository.save(organization);
+  }
+
+  async toggleOrganizationStatus(id: string) {
+    const organization = await this.findById(id);
+    organization.enabled = !organization.enabled;
+    return this.organizationRepository.save(organization);
+  }
 }

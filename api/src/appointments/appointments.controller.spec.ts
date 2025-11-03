@@ -13,13 +13,13 @@ describe('AppointmentsController', () => {
     id: '1',
     startDate: new Date(),
     endDate: new Date(),
-    client: { 
+    client: {
       id: 'client-1',
       name: 'John Doe',
-      email: 'john@example.com'
+      email: 'john@example.com',
     },
     professional: { id: 'professional-1' },
-    organization: { id: 'org-1' }
+    organization: { id: 'org-1' },
   };
 
   const mockJwtGuard = { canActivate: jest.fn().mockReturnValue(true) };
@@ -38,9 +38,9 @@ describe('AppointmentsController', () => {
         },
       ],
     })
-    .overrideGuard(JwtAuthGuard)
-    .useValue(mockJwtGuard)
-    .compile();
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtGuard)
+      .compile();
 
     controller = module.get<AppointmentsController>(AppointmentsController);
     service = module.get<AppointmentsService>(AppointmentsService);
@@ -55,21 +55,23 @@ describe('AppointmentsController', () => {
       const appointmentDto: AppointmentDto = {
         clientId: 'client-1',
         startDate: new Date(),
-        endDate: new Date()
+        endDate: new Date(),
       };
 
-      jest.spyOn(service, 'createAppointment').mockResolvedValue(mockAppointment as any);
+      jest
+        .spyOn(service, 'createAppointment')
+        .mockResolvedValue(mockAppointment as any);
 
       const result = await controller.createAppointment(
         appointmentDto,
         'professional-1',
-        'org-1'
+        'org-1',
       );
 
       expect(service.createAppointment).toHaveBeenCalledWith(
         appointmentDto,
         'org-1',
-        'professional-1'
+        'professional-1',
       );
       expect(result).toEqual(mockAppointment);
     });
@@ -78,22 +80,24 @@ describe('AppointmentsController', () => {
       const appointmentDto: AppointmentDto = {
         clientId: 'nonexistent',
         startDate: new Date(),
-        endDate: new Date()
+        endDate: new Date(),
       };
 
-      jest.spyOn(service, 'createAppointment').mockRejectedValue(
-        new NotFoundException('Client not found')
-      );
+      jest
+        .spyOn(service, 'createAppointment')
+        .mockRejectedValue(new NotFoundException('Client not found'));
 
       await expect(
-        controller.createAppointment(appointmentDto, 'professional-1', 'org-1')
+        controller.createAppointment(appointmentDto, 'professional-1', 'org-1'),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('findAppointments', () => {
     it('should return all appointments for an organization', async () => {
-      jest.spyOn(service, 'findAppointments').mockResolvedValue([mockAppointment] as any);
+      jest
+        .spyOn(service, 'findAppointments')
+        .mockResolvedValue([mockAppointment] as any);
 
       const result = await controller.findAppointments('org-1');
 
@@ -104,22 +108,30 @@ describe('AppointmentsController', () => {
 
   describe('findAppointmentsByProfessional', () => {
     it('should return appointments for a specific professional', async () => {
-      jest.spyOn(service, 'findAppointmentsByProfessional').mockResolvedValue([mockAppointment] as any);
+      jest
+        .spyOn(service, 'findAppointmentsByProfessional')
+        .mockResolvedValue([mockAppointment] as any);
 
-      const result = await controller.findAppointmentsByProfessional('org-1', 'professional-1');
+      const result = await controller.findAppointmentsByProfessional(
+        'org-1',
+        'professional-1',
+      );
 
-      expect(service.findAppointmentsByProfessional).toHaveBeenCalledWith('org-1', 'professional-1');
+      expect(service.findAppointmentsByProfessional).toHaveBeenCalledWith(
+        'org-1',
+        'professional-1',
+      );
       expect(result).toEqual([mockAppointment]);
     });
 
     it('should throw NotFoundException when appointments are not found', async () => {
-      jest.spyOn(service, 'findAppointmentsByProfessional').mockRejectedValue(
-        new NotFoundException('Appointments not found')
-      );
+      jest
+        .spyOn(service, 'findAppointmentsByProfessional')
+        .mockRejectedValue(new NotFoundException('Appointments not found'));
 
       await expect(
-        controller.findAppointmentsByProfessional('org-1', 'nonexistent')
+        controller.findAppointmentsByProfessional('org-1', 'nonexistent'),
       ).rejects.toThrow(NotFoundException);
     });
   });
-}); 
+});
