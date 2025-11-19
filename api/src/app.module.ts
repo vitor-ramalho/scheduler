@@ -13,6 +13,7 @@ import { ProfessionalModule } from './professional/professional.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
 import { AdminManagementModule } from './admin-management/admin-management.module';
+import { EmailModule } from './notification/email.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AdminManagementModule } from './admin-management/admin-management.modul
     DashboardModule,
     BackofficeModule,
     AdminManagementModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

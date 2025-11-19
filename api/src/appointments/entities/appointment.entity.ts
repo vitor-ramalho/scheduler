@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToOne,
-  JoinColumn,
 } from 'typeorm';
 import { Client } from '../../clients/entities/client.entity';
 import { Professional } from '../../professional/entities/professional.entity';
@@ -20,8 +18,7 @@ export class Appointment {
   @ManyToOne(() => Client, (client) => client.appointments, { eager: true })
   client: Client;
 
-  @OneToOne(() => Professional, (professional) => professional.appointments)
-  @JoinColumn()
+  @ManyToOne(() => Professional, (professional) => professional.appointments)
   professional: Professional;
 
   @ManyToOne(() => Organization, (organization) => organization.appointments, {

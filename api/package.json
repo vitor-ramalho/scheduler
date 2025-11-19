@@ -25,12 +25,15 @@
     "db:backup": "chmod +x scripts/backup-db.sh && ./scripts/backup-db.sh",
     "admin:create": "chmod +x scripts/create-admin.sh && ./scripts/create-admin.sh",
     "security:audit": "npm audit && npm audit fix",
-    "typeorm": "npm run build && npx typeorm -d dist/config/database.config.js",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/config/typeorm.config.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "migration:show": "npm run typeorm -- migration:show"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.1",
     "@nestjs/core": "^11.0.1",
@@ -40,6 +43,7 @@
     "@nestjs/swagger": "^11.0.7",
     "@nestjs/typeorm": "^11.0.0",
     "@types/express-rate-limit": "^5.1.3",
+    "@types/nodemailer": "^7.0.4",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -47,6 +51,7 @@
     "dotenv": "^16.4.7",
     "express-rate-limit": "^8.2.0",
     "helmet": "^8.1.0",
+    "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.14.1",

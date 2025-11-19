@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { join } from 'path';
 
 export default registerAs('database', (): TypeOrmModuleOptions => {
   const connectionString =
@@ -14,5 +15,7 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     retryAttempts: 10,
     retryDelay: 3000,
     autoLoadEntities: true,
+    migrations: [join(__dirname, '..', 'migrations', '*{.ts,.js}')],
+    migrationsRun: false, // Set to true if you want to auto-run migrations on app start
   };
 });
