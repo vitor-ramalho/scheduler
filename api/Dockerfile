@@ -33,9 +33,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy built application and migrations
+# Copy built application with migrations included
 COPY --from=builder --chown=scheduler:nodejs /app/dist ./dist
 COPY --from=builder --chown=scheduler:nodejs /app/node_modules ./node_modules
+
+# Copy migration source files (needed for TypeORM to run migrations)
+COPY --from=builder --chown=scheduler:nodejs /app/src/migrations ./src/migrations
+COPY --from=builder --chown=scheduler:nodejs /app/src/config/typeorm.config.ts ./src/config/typeorm.config.ts
 
 # Copy necessary config files
 COPY --chown=scheduler:nodejs tsconfig*.json ./

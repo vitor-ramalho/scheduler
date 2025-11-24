@@ -3,11 +3,27 @@ import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { DatabaseExceptionFilter } from './common/filters/database-exception.filter';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   try {
+    // Run migrations before starting the app
+    logger.log('Running database migrations...');
+    const dataSource = new DataSource({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+      synchronize: false,
+    });
+
+    await dataSource.initialize();
+    await dataSource.runMigrations();
+    await dataSource.destroy();
+    logger.log('Migrations completed successfully!');
+
     const app = await NestFactory.create(AppModule);
 
     app.setGlobalPrefix('api');
@@ -36,9 +52,11 @@ async function bootstrap() {
       `Swagger documentation available at: ${await app.getUrl()}/api/docs`,
     );
   } catch (error) {
-    logger.error(`Error starting application: ${error.message}`, error.stack);
-    // Still allow the application to start even with errors
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack : '';
+    logger.error(`Error starting application: ${message}`, stack);
     process.exit(1);
   }
 }
-bootstrap();
+
+void bootstrap();
