@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Plan } from "@/components/pricing-card";
 import api from "@/services/apiService";
 import { create } from "zustand";
 
 
 interface PlanState {
-  plans: Plan[];
+  plans: any[];
   loading: boolean;
   error: string | null;
   fetchPlans: () => Promise<void>;

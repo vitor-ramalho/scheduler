@@ -50,7 +50,6 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest); // Retry the original request
       } catch (refreshError) {
-        console.error('Failed to refresh token:', refreshError.response?.data?.message || refreshError.message);
         useUserStore.getState().clearUser(); // Clear user state on refresh failure
         Router.push('/'); // Redirect to the home page
         return Promise.reject(refreshError); // Stop retrying

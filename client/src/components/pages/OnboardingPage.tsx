@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { validateCNPJ } from "@/utils/cnpjUtils"; // Import from utils
 import { useUserStore } from "@/store/userStore";
 import { updateCompany } from "@/services/onboardingService";
 import { usePlanStore } from "@/store/planStore";
-import PricingCard from "@/components/pricing-card";
-import PaymentPage from "@/components/payment/PaymentPage";
 import CompanyForm from "../company/CompanyForm";
 import toast from "react-hot-toast";
 
@@ -48,9 +45,8 @@ export default function OnboardingPage() {
     phone: "",
     email: "",
   });
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [selectedPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const t = useTranslations("Onboarding");
 
   const { user } = useUserStore();
@@ -100,7 +96,7 @@ export default function OnboardingPage() {
           toast.error("Failed to update company information");
           return;
         }
-        setCompanyInfo(updatedCompany);
+        // setCompanyInfo(updatedCompany);
         setStep(step + 1);
       } else if (step === 2) {
         if (!selectedPlan) {
@@ -119,7 +115,7 @@ export default function OnboardingPage() {
           toast.error("Failed to update plan");
           return;
         }
-        setCompanyInfo(updatedCompany);
+        // setCompanyInfo(updatedCompany);
         setStep(step + 1);
       }
     } catch (error) {
@@ -135,13 +131,6 @@ export default function OnboardingPage() {
     setErrors({ ...errors, [field]: "" });
   };
 
-  const handlePaymentSuccess = () => {
-    router.push("/dashboard");
-  };
-
-  const handlePaymentCancel = () => {
-    setStep(2);
-  };
 
   useEffect(() => {
     fetchPlans();
@@ -162,23 +151,8 @@ export default function OnboardingPage() {
         )}
         {step === 2 && (
           <div className="flex justify-center items-center">
-            {plans.map((item) => (
-              <PricingCard
-                key={item.id}
-                item={item}
-                selectable={true}
-                selectedPlan={selectedPlan}
-                onSelect={(plan) => setSelectedPlan(plan)}
-              />
-            ))}
+
           </div>
-        )}
-        {step === 3 && selectedPlan && (
-          <PaymentPage
-            amount={selectedPlan.price}
-            onSuccess={handlePaymentSuccess}
-            onCancel={handlePaymentCancel}
-          />
         )}
         {step !== 3 && (
           <button
