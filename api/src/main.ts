@@ -16,7 +16,8 @@ async function bootstrap() {
       url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-      synchronize: false,
+      synchronize: false, // NEVER use synchronize in production
+      migrationsRun: false, // We'll run migrations manually below
     });
 
     await dataSource.initialize();

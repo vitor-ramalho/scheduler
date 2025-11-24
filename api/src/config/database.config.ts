@@ -10,12 +10,12 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
   return {
     type: 'postgres',
     url: connectionString,
-    synchronize: process.env.NODE_ENV !== 'production', // Don't use synchronize in production
-    logging: process.env.NODE_ENV !== 'production',
+    synchronize: false, // NEVER use synchronize - always use migrations
+    logging: process.env.NODE_ENV === 'development',
     retryAttempts: 10,
     retryDelay: 3000,
     autoLoadEntities: true,
     migrations: [join(__dirname, '..', 'migrations', '*{.ts,.js}')],
-    migrationsRun: false, // Set to true if you want to auto-run migrations on app start
+    migrationsRun: false, // Migrations are run manually in main.ts before app starts
   };
 });
