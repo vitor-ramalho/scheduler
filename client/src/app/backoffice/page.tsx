@@ -20,16 +20,21 @@ export default function BackofficePage() {
       setLoading(true);
       setError(null);
       
+      console.log('Fetching backoffice data...');
       const [statsData, orgsData] = await Promise.all([
         backofficeService.getStats(),
         backofficeService.getOrganizations(),
       ]);
+      console.log('Backoffice data loaded:', { statsData, orgsData });
 
       setStats(statsData);
       setOrganizations(orgsData);
     } catch (err) {
-      console.error('Erro ao carregar dados:', err);
-      setError('Erro ao carregar dados do backoffice');
+      console.error('Erro ao carregar dados do backoffice:', err);
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      console.error('Erro response:', error.response);
+      console.error('Erro message:', error.message);
+      setError(`Erro ao carregar dados: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
     } finally {
       setLoading(false);
     }

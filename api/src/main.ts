@@ -10,7 +10,7 @@ async function bootstrap() {
 
   try {
     // Run migrations before starting the app
-    logger.log('Running database migrations...');
+    logger.log('🔄 Initializing database connection...');
     const dataSource = new DataSource({
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -21,9 +21,22 @@ async function bootstrap() {
     });
 
     await dataSource.initialize();
-    await dataSource.runMigrations();
+    logger.log('✅ Database connection established');
+    
+    logger.log('🔄 Running pending migrations...');
+    const migrations = await dataSource.runMigrations();
+    
+    if (migrations.length > 0) {
+      logger.log(`✅ Executed ${migrations.length} migration(s):`);
+      migrations.forEach((migration) => {
+        logger.log(`   - ${migration.name}`);
+      });
+    } else {
+      logger.log('✅ No pending migrations');
+    }
+    
     await dataSource.destroy();
-    logger.log('Migrations completed successfully!');
+    logger.log('✅ Migration process completed successfully!');
 
     const app = await NestFactory.create(AppModule);
 
