@@ -16,8 +16,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    // Se não é admin, redirecionar para dashboard
-    if (user.role !== 'admin') {
+    // Se não é admin, redirecionar para dashboard (case-insensitive)
+    if (user.role?.toUpperCase() !== 'ADMIN') {
       router.push("/dashboard");
       return;
     }
@@ -33,7 +33,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }
 
   // Se não é admin, não mostrar nada (será redirecionado)
-  if (user.role !== 'admin') {
+  if (user.role?.toUpperCase() !== 'ADMIN') {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
